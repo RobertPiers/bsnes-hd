@@ -237,15 +237,37 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: artifacts
+      - name: Install packaging tools
+        run: sudo apt-get update && sudo apt-get install -y zip
+      - name: Prepare release assets
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          for artifact in \
+            bsnes_hd_beta_X_windows \
+            bsnes_hd_beta_X_windows_libretro \
+            bsnes_hd_beta_X_linux_libretro \
+            bsnes_hd_beta_X_linux_arm_libretro \
+            bsnes_hd_beta_X_mac_libretro \
+            bsnes_hd_beta_X_android_libretro
+          do
+            if [ -d "artifacts/${artifact}" ]; then
+              (cd "artifacts/${artifact}" && zip -r "../../release/${artifact}.zip" .)
+            else
+              echo "Warning: artifacts/${artifact} was not found" >&2
+            fi
+          done
+          if [ -d artifacts/UNPACK-LINUX ]; then
+            find artifacts/UNPACK-LINUX -name 'bsnes_hd_beta_X_linux.tar.bz2' -exec cp {} release/ \;
+          else
+            echo "Warning: artifacts/UNPACK-LINUX was not found" >&2
+          fi
+          if [ -d artifacts/UNPACK-MAC ]; then
+            find artifacts/UNPACK-MAC -name 'bsnes_hd_beta_X_mac.tar.bz2' -exec cp {} release/ \;
+          else
+            echo "Warning: artifacts/UNPACK-MAC was not found" >&2
+          fi
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            artifacts/bsnes_hd_beta_X_windows/**
-            artifacts/bsnes_hd_beta_X_windows_libretro/**
-            artifacts/UNPACK-LINUX/**
-            artifacts/bsnes_hd_beta_X_linux_libretro/**
-            artifacts/bsnes_hd_beta_X_linux_arm_libretro/**
-            artifacts/UNPACK-MAC/**
-            artifacts/bsnes_hd_beta_X_mac_libretro/**
-            artifacts/bsnes_hd_beta_X_android_libretro/**
+          files: release/*
