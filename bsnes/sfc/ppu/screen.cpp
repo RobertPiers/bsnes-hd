@@ -30,9 +30,9 @@ auto PPU::Screen::run() -> void {
 
   auto defaultDepth = ppu.twofive.defaultDepth();
   bool aboveVisible = math.above.depth != defaultDepth;
-  bool belowVisible = math.below.depth != defaultDepth && !math.transparent;
+  bool belowVisible = !math.transparent && math.below.depth != defaultDepth;
   auto frontDepth = ppu.twofive.frontDepth(math.above.depth, aboveVisible, math.below.depth, belowVisible);
-  ppu.twofive.write(math.below.depth, belowVisible, math.above.depth, aboveVisible, frontDepth, hires);
+  ppu.twofive.write(frontDepth, hires);
 
   *lineA++ = *lineB++ = ppu.lightTable[ppu.io.displayBrightness][hires ? belowColor : aboveColor];
   *lineA++ = *lineB++ = ppu.lightTable[ppu.io.displayBrightness][aboveColor];
