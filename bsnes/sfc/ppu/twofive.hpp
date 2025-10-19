@@ -8,7 +8,7 @@ struct TwoFiveD {
   auto depthForBackground(uint layer, uint priority, uint color) const -> uint16;
   auto depthForObject(uint priority, uint color) const -> uint16;
   auto beginScanline(uint y, bool interlace, bool field) -> void;
-  auto write(uint16 belowDepth, bool belowVisible, uint16 aboveDepth, bool aboveVisible, uint16 frontDepth, bool hires) -> void;
+  auto write(uint16 depth, bool hires) -> void;
   auto frontDepth(uint16 aboveDepth, bool aboveEnable, uint16 belowDepth, bool belowEnable) const -> uint16;
 
   struct Layer {
@@ -34,7 +34,7 @@ struct TwoFiveD {
 
   auto clamp(uint32 value) const -> uint16 {
     if(!io.clampDepth) return (uint16)value;
-    return (uint16)std::clamp<uint32>(value, 0u, 0xffffu);
+    return value > 0xffff ? 0xffff : (uint16)value;
   }
 
   friend class PPU;
