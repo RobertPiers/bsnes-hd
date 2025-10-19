@@ -9,6 +9,7 @@ PPU ppu;
 #include "background.cpp"
 #include "object.cpp"
 #include "window.cpp"
+#include "twofive.cpp"
 #include "screen.cpp"
 #include "serialization.cpp"
 #include "counter/serialization.cpp"
@@ -74,6 +75,7 @@ auto PPU::load() -> bool {
 }
 
 auto PPU::power(bool reset) -> void {
+  twofive.power();
   if(system.fastPPU()) {
     create(PPUfast::Enter, system.cpuFrequency());
     ppufast.power(reset);
