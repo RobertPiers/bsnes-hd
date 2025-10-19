@@ -195,6 +195,7 @@ auto PPU::Background::run(bool screen) -> void {
   pixel.priority = tile.priority;
   pixel.palette = color ? uint(tile.palette + color) : 0;
   pixel.paletteGroup = tile.paletteGroup;
+  pixel.depth = color ? ppu.twofive.depthForBackground(id, tile.priority, color) : ppu.twofive.defaultDepth();
   if(++pixelCounter == 0) renderingIndex++;
 
   uint x = ppu.hcounter() - 56 >> 2;
@@ -227,7 +228,10 @@ auto PPU::Background::power() -> void {
 
   output.above = {};
   output.below = {};
+  output.above.depth = ppu.twofive.defaultDepth();
+  output.below.depth = ppu.twofive.defaultDepth();
 
   mosaic = {};
   mosaic.enable = random();
+  mosaic.pixel.depth = ppu.twofive.defaultDepth();
 }
