@@ -63,6 +63,7 @@ struct Configuration {
         uint windRad = 0;
         uint wsMode = 1;
         uint wsBgCol = 1;
+        uint wsHandling = 1;
         uint wsMarker = 0;
         uint wsMarkerAlpha = 1;
         uint supersample = 1;

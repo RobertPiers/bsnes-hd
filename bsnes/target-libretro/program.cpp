@@ -331,6 +331,9 @@ auto Program::applySettingOverrides() -> void {
               emulator->configure("Hacks/PPU/Mode7/WsMarker", n < 1 || n > 20 ? 0 : (n - 1) / 10 + 1);
               emulator->configure("Hacks/PPU/Mode7/WsMarkerAlpha", (n - 1) % 10 + 1);
               break;
+            case 'h': //widescreen handling 0:off 1:clamp 2:mirror 3:mask
+              emulator->configure("Hacks/PPU/Mode7/WsHandling", n > 3 ? 0 : n);
+              break;
             case 'P': //Perspective 0:off 1-3:auto 4-6+:on (wide, medium, narrow)
               emulator->configure("Hacks/PPU/Mode7/Perspective", n < 1 || n > 6 ? 0 : n );
               break;

@@ -1,0 +1,50 @@
+_pkgname=bsnes-hd
+pkgname=bsnes-hd
+pkgver=0.0.0
+pkgrel=1
+pkgdesc="bsnes with HD Mode 7 and widescreen enhancements"
+arch=('x86_64')
+url="https://github.com/DerKoun/bsnes-hd"
+license=('GPL3')
+provides=('bsnes')
+conflicts=('bsnes')
+depends=(
+  'gtk2'
+  'libpulse'
+  'libglvnd'
+  'cairo'
+  'sdl2'
+  'libxv'
+  'libao'
+  'openal'
+  'systemd-libs'
+)
+makedepends=('git' 'mesa')
+source=("$_pkgname::git+https://github.com/DerKoun/bsnes-hd.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${srcdir}/${_pkgname}"
+  if git describe --tags --long --match 'v*' >/dev/null 2>&1; then
+    git describe --tags --long --match 'v*' | sed 's/^v//;s/-/./g'
+  else
+    printf '0.r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  fi
+}
+
+prepare() {
+  cd "${srcdir}/${_pkgname}"
+  git reset --hard HEAD
+}
+
+build() {
+  cd "${srcdir}/${_pkgname}"
+  make -C bsnes platform=linux
+}
+
+package() {
+  cd "${srcdir}/${_pkgname}"
+  make -C bsnes platform=linux prefix="${pkgdir}/usr" install
+  install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -347,6 +347,20 @@ auto EnhancementSettings::create() -> void {
     emulator->configure("Hacks/PPU/Mode7/WsBgCol", settings.emulator.hack.ppu.mode7.wsBgCol);
   });
 
+  wsHandlingLabel.setText("WS handling:");
+  wsHandling.append(ComboButtonItem().setText("off"));
+  wsHandling.append(ComboButtonItem().setText("clamp"));
+  wsHandling.append(ComboButtonItem().setText("mirror"));
+  wsHandling.append(ComboButtonItem().setText("mask"));
+  for(uint n = 0; n <= 3; n++) {
+    if(wsHandling.item(n).offset() == settings.emulator.hack.ppu.mode7.wsHandling)
+       wsHandling.item(n).setSelected();
+  }
+  wsHandling.onChange([&] {
+    settings.emulator.hack.ppu.mode7.wsHandling = wsHandling.selected().offset();
+    emulator->configure("Hacks/PPU/Mode7/WsHandling", settings.emulator.hack.ppu.mode7.wsHandling);
+  });
+
   wsModeLabel.setText("Widescreen:");
   wsMode.append(ComboButtonItem().setText("none"));
   wsMode.append(ComboButtonItem().setText("Mode 7"));

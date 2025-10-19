@@ -350,11 +350,79 @@ auto PPU::Line::render(bool fieldID) -> void {
 
   uint curr = 0, prev = 0;
   if(hd) {
-    int x = 0;
-    for(uint ySub : range(scale)) {
-      for(uint i : range((256 + 2 * ppufast.widescreen() ) * scale)) {
-        *output++ = pixel(x, above[x], below[x], ppu.widescreen(), wsm, wsma, bgFixedColors[ySub]);
-        x++;
+    uint wsExt = ppufast.widescreen();
+    uint handling = ppufast.wsHandling();
+    int widthScaled = (256 + 2 * wsExt) * scale;
+    if(wsExt > 0 && handling > 0 && handling <= 3) {
+      int leftEdge = wsExt * scale;
+      int rightEdge = leftEdge + 256 * scale;
+      int leftMaxDist = leftEdge - 1;
+      int rightExtent = widthScaled - rightEdge;
+      int rightMaxDist = rightExtent - 1;
+      const int fadeMax = 192;
+      int xIndex = 0;
+      for(uint ySub : range(scale)) {
+        for(uint i : range(widthScaled)) {
+          int destX = xIndex;
+          int column = destX % widthScaled;
+          int row = destX / widthScaled;
+          int sampleColumn = column;
+          bool outside = column < leftEdge || column >= rightEdge;
+          bool empty = outside && above[destX].priority == 0 && below[destX].priority == 0;
+          bool applyMask = false;
+          int fade = 0;
+
+          if(handling == 1 && empty) { // clamp
+            sampleColumn = column < leftEdge ? leftEdge : rightEdge - 1;
+          } else if(handling == 2 && empty) { // mirror
+            if(column < leftEdge) {
+              int offset = leftEdge - 1 - column;
+              sampleColumn = leftEdge + offset;
+            } else {
+              int offset = column - rightEdge;
+              sampleColumn = rightEdge - 1 - offset;
+            }
+            if(sampleColumn < leftEdge) sampleColumn = leftEdge;
+            if(sampleColumn >= rightEdge) sampleColumn = rightEdge - 1;
+          } else if(handling == 3 && empty) { // mask
+            applyMask = true;
+            if(column < leftEdge) {
+              fade = leftMaxDist > 0 ? fadeMax * (leftMaxDist - column) / leftMaxDist : fadeMax;
+            } else {
+              int dist = column - rightEdge;
+              fade = rightMaxDist > 0 ? fadeMax * dist / rightMaxDist : fadeMax;
+            }
+          }
+
+          int sampleIndex = row * widthScaled + sampleColumn;
+          Pixel srcAbove = above[sampleIndex];
+          Pixel srcBelow = below[sampleIndex];
+          if(applyMask) {
+            auto applyFade = [&](Pixel& p) {
+              uint32 color = p.color;
+              uint r = color >> 16 & 255;
+              uint g = color >>  8 & 255;
+              uint b = color >>  0 & 255;
+              r = r * (255 - fade) / 255;
+              g = g * (255 - fade) / 255;
+              b = b * (255 - fade) / 255;
+              p.color = (r << 16) | (g << 8) | (b << 0);
+            };
+            applyFade(srcAbove);
+            applyFade(srcBelow);
+          }
+
+          *output++ = pixel(destX, srcAbove, srcBelow, ppu.widescreen(), wsm, wsma, bgFixedColors[ySub]);
+          xIndex++;
+        }
+      }
+    } else {
+      int x = 0;
+      for(uint ySub : range(scale)) {
+        for(uint i : range(widthScaled)) {
+          *output++ = pixel(x, above[x], below[x], ppu.widescreen(), wsm, wsma, bgFixedColors[ySub]);
+          x++;
+        }
       }
     }
   } else if(width == 256) for(uint x : range(256)) {

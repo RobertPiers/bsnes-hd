@@ -763,6 +763,19 @@ struct retro_core_option_definition option_defs_us[] = {
       "auto"
    },
    {
+      "bsnes_mode7_wsHandling",
+      "Widescreen - Edge Handling",
+      "Defines how the widescreen areas are presented when tiles outside the safe 256px viewport are unavailable.",
+      {
+         { "clamp",  "Extend last safe pixels"       },
+         { "mirror", "Mirror edge pixels"            },
+         { "mask",   "Fade unsafe areas"             },
+         { "off",    "Leave background fill"         },
+         { NULL, NULL },
+      },
+      "clamp"
+   },
+   {
       "bsnes_mode7_igwin",
       "Widescreen - Ignore Window Effects",
       "Defines which window effects should be ignored when using Widescreen Mode.",

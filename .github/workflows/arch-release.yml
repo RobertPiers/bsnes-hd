@@ -1,0 +1,57 @@
+name: Arch Linux Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      pkgrel:
+        description: 'Optional package release override (defaults to PKGBUILD pkgrel)'
+        required: false
+  release:
+    types: [published]
+
+jobs:
+  build-arch-package:
+    name: Build Arch Linux package
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed base-devel git sudo
+
+      - name: Create build user
+        run: |
+          useradd -m builder
+          echo 'builder ALL=(ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/builder
+          chown -R builder:builder "$PWD"
+
+      - name: Build package
+        env:
+          PKGREL_OVERRIDE: ${{ github.event.inputs.pkgrel || '' }}
+        run: |
+          if [ -n "$PKGREL_OVERRIDE" ]; then
+            su builder -c "cd packaging/arch && sed -i \"s/^pkgrel=.*/pkgrel=${PKGREL_OVERRIDE}/\" PKGBUILD"
+          fi
+          su builder -c 'cd packaging/arch && makepkg --printsrcinfo > .SRCINFO'
+          su builder -c 'cd packaging/arch && makepkg --syncdeps --noconfirm --cleanbuild --clean'
+          su builder -c 'cd packaging/arch && makepkg --noconfirm --source'
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist
+          cp packaging/arch/*.pkg.tar.zst dist/
+          cp packaging/arch/*.src.tar.gz dist/ || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: arch-linux-package
+          path: dist
+          if-no-files-found: error

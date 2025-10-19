@@ -55,6 +55,7 @@ auto PPU::wsOverrideCandidate() const -> bool { return configuration.hacks.ppu.m
 auto PPU::wsOverride() const -> bool { return mode7LineGroups.count < 1 && wsOverrideCandidate(); }
 auto PPU::wsBgCol() const -> bool { return configuration.hacks.ppu.mode7.wsBgCol == 2
                                             || configuration.hacks.ppu.mode7.wsBgCol == 1 && wsOverride(); }
+auto PPU::wsHandling() const -> uint { return configuration.hacks.ppu.mode7.wsHandling; }
 auto PPU::wsMarker() const -> uint { return configuration.hacks.ppu.mode7.wsMarker; }
 auto PPU::wsMarkerAlpha() const -> uint { return configuration.hacks.ppu.mode7.wsMarkerAlpha; }
 auto PPU::deinterlace() const -> bool { return configuration.hacks.ppu.deinterlace; }

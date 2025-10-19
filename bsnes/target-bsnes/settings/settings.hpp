@@ -129,6 +129,7 @@ struct Settings : Markup::Node {
           uint windRad = 0;
           uint wsMode = 1;
           uint wsBgCol = 1;
+          uint wsHandling = 1;
           uint wsMarker = 0;
           uint wsMarkerAlpha = 1;
         } mode7;
@@ -404,6 +405,8 @@ public:
       ComboButton mode7Widescreen{&hdBLayout, Size{0, 0}};
       Label wsBgColLabel{&hdBLayout, Size{0, 0}};
       ComboButton wsBgCol{&hdBLayout, Size{0, 0}};
+      Label wsHandlingLabel{&hdBLayout, Size{0, 0}};
+      ComboButton wsHandling{&hdBLayout, Size{0, 0}};
       Label wsMarkerLabel{&hdBLayout, Size{0, 0}};
       ComboButton wsMarker{&hdBLayout, Size{0, 0}};
       Label wsMarkerAlphaLabel{&hdBLayout, Size{0, 0}};

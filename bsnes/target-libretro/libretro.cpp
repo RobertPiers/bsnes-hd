@@ -560,18 +560,32 @@ static bool update_variables() // returns whether video dimensions have changed 
 		emulator->configure("Hacks/PPU/Mode7/Wsobj", val);
 	}
 
-	// wsBgCol: auto|color|black
-	var.key = "bsnes_mode7_wsBgCol";
-	var.value = NULL;
+        // wsBgCol: auto|color|black
+        var.key = "bsnes_mode7_wsBgCol";
+        var.value = NULL;
 
-	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
-	{
-		int val = 1;
-		if (strcmp(var.value,      "auto") == 0) val = 1;
-		else if (strcmp(var.value, "color") == 0) val = 0;
-		else if (strcmp(var.value, "black") == 0) val = 2;
-		emulator->configure("Hacks/PPU/Mode7/WsBgCol", val);
-	}
+        if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+        {
+                int val = 1;
+                if (strcmp(var.value,      "auto") == 0) val = 1;
+                else if (strcmp(var.value, "color") == 0) val = 0;
+                else if (strcmp(var.value, "black") == 0) val = 2;
+                emulator->configure("Hacks/PPU/Mode7/WsBgCol", val);
+        }
+
+        // wsHandling: off|clamp|mirror|mask
+        var.key = "bsnes_mode7_wsHandling";
+        var.value = NULL;
+
+        if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+        {
+                int val = 1;
+                if (strcmp(var.value,      "clamp") == 0) val = 1;
+                else if (strcmp(var.value, "mirror") == 0) val = 2;
+                else if (strcmp(var.value, "mask") == 0) val = 3;
+                else if (strcmp(var.value, "off") == 0) val = 0;
+                emulator->configure("Hacks/PPU/Mode7/WsHandling", val);
+        }
 
 	// igwin: outside|outside and always|all|none
 	var.key = "bsnes_mode7_igwin";

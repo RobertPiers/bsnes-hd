@@ -107,8 +107,16 @@ Specifies the widescreen aspect ratio. 16:9 at 5x scale results in a width of 19
 
 Sets how the backgrounds of the widescreen areas are filled
 - **color**: always fill the widescreen areas with the scanline background colors.
-- **auto**(default): fill the widescreen areas with the scanline background colors, except when the "*Widescreen:Mode 7*" setting disables widescreen for the scene, then use black. 
+- **auto**(default): fill the widescreen areas with the scanline background colors, except when the "*Widescreen:Mode 7*" setting disables widescreen for the scene, then use black.
 - **black**: the widescreen areas always have a black background, ignoring the background color, even when the scene is widescreen. (do not use unless a a game specifically requires it, none known for now)
+
+### WS handling (WideScreen Edge Handling)
+
+Controls how the image is extended into the widescreen areas when no safe tiles are available.
+- **off**: use the background fill defined by *WS bg* without additional processing.
+- **clamp**(default): repeat the last safe column or row so worlds extend smoothly and reduce pop-in.
+- **mirror**: mirror the last safe column, which can look nicer on horizontally scrolling scenes.
+- **mask**: apply a soft widescreen fade that gently darkens unsafe regions until the game uploads fresh tiles.
 
 ### WS marker (WideScreen Marker)
 

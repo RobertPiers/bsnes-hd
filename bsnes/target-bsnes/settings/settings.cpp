@@ -138,6 +138,7 @@ auto Settings::process(bool load) -> void {
   bind(natural, "Emulator/Hack/PPU/Mode7/WindRad",       emulator.hack.ppu.mode7.windRad);
   bind(natural, "Emulator/Hack/PPU/Mode7/WsMode",        emulator.hack.ppu.mode7.wsMode);
   bind(natural, "Emulator/Hack/PPU/Mode7/WsBgCol",       emulator.hack.ppu.mode7.wsBgCol);
+  bind(natural, "Emulator/Hack/PPU/Mode7/WsHandling",    emulator.hack.ppu.mode7.wsHandling);
   bind(natural, "Emulator/Hack/PPU/Mode7/WsMarker",      emulator.hack.ppu.mode7.wsMarker);
   bind(natural, "Emulator/Hack/PPU/Mode7/WsMarkerAlpha", emulator.hack.ppu.mode7.wsMarkerAlpha);
   bind(natural, "Emulator/Hack/PPU/Mode7/Supersample",   emulator.hack.ppu.mode7.supersample);
