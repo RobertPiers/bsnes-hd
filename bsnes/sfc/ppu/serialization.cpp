@@ -80,6 +80,7 @@ auto PPU::serialize(serializer& s) -> void {
   bg4.serialize(s);
   obj.serialize(s);
   window.serialize(s);
+  twofive.serialize(s);
   screen.serialize(s);
 }
 
@@ -103,10 +104,12 @@ auto PPU::Background::serialize(serializer& s) -> void {
   s.integer(output.above.priority);
   s.integer(output.above.palette);
   s.integer(output.above.paletteGroup);
+  s.integer(output.above.depth);
 
   s.integer(output.below.priority);
   s.integer(output.below.palette);
   s.integer(output.below.paletteGroup);
+  s.integer(output.below.depth);
 
   s.integer(mosaic.enable);
   s.integer(mosaic.hcounter);
@@ -115,6 +118,7 @@ auto PPU::Background::serialize(serializer& s) -> void {
   s.integer(mosaic.pixel.priority);
   s.integer(mosaic.pixel.palette);
   s.integer(mosaic.pixel.paletteGroup);
+  s.integer(mosaic.pixel.depth);
 
   s.integer(opt.hoffset);
   s.integer(opt.voffset);
@@ -187,9 +191,11 @@ auto PPU::Object::serialize(serializer& s) -> void {
 
   s.integer(output.above.priority);
   s.integer(output.above.palette);
+  s.integer(output.above.depth);
 
   s.integer(output.below.priority);
   s.integer(output.below.palette);
+  s.integer(output.below.depth);
 }
 
 auto PPU::Window::serialize(serializer& s) -> void {
@@ -273,8 +279,10 @@ auto PPU::Screen::serialize(serializer& s) -> void {
 
   s.integer(math.above.color);
   s.integer(math.above.colorEnable);
+  s.integer(math.above.depth);
   s.integer(math.below.color);
   s.integer(math.below.colorEnable);
+  s.integer(math.below.depth);
   s.integer(math.transparent);
   s.integer(math.blendMode);
   s.integer(math.colorHalve);

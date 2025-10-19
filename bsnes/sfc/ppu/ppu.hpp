@@ -29,6 +29,10 @@ struct PPU : Thread, PPUcounter {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
+  auto depthBuffer() -> uint16* { return twofive.output.buffer; }
+  auto depthBufferPitch() const -> uint { return 1024; }
+  auto depthBufferEnabled() const -> bool { return twofive.io.enable; }
+
 private:
   //ppu.cpp
   alwaysinline auto step() -> void;
@@ -158,6 +162,7 @@ private:
   #include "object.hpp"
   #include "window.hpp"
   #include "screen.hpp"
+  #include "twofive.hpp"
 
   Mosaic mosaic;
   Background bg1;
@@ -167,6 +172,7 @@ private:
   Object obj;
   Window window;
   Screen screen;
+  TwoFiveD twofive;
 
   friend class PPU::Background;
   friend class PPU::Object;
