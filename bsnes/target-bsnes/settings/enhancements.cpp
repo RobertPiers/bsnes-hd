@@ -352,7 +352,8 @@ auto EnhancementSettings::create() -> void {
   wsHandling.append(ComboButtonItem().setText("clamp"));
   wsHandling.append(ComboButtonItem().setText("mirror"));
   wsHandling.append(ComboButtonItem().setText("mask"));
-  for(uint n = 0; n <= 3; n++) {
+  wsHandling.append(ComboButtonItem().setText("temporal"));
+  for(uint n = 0; n <= 4; n++) {
     if(wsHandling.item(n).offset() == settings.emulator.hack.ppu.mode7.wsHandling)
        wsHandling.item(n).setSelected();
   }

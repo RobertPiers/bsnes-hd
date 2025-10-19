@@ -352,51 +352,96 @@ auto PPU::Line::render(bool fieldID) -> void {
   if(hd) {
     uint wsExt = ppufast.widescreen();
     uint handling = ppufast.wsHandling();
-    int widthScaled = (256 + 2 * wsExt) * scale;
-    if(wsExt > 0 && handling > 0 && handling <= 3) {
+    uint widthScaled = (256 + 2 * wsExt) * scale;
+    if(wsExt > 0 && handling > 0) {
       int leftEdge = wsExt * scale;
       int rightEdge = leftEdge + 256 * scale;
       int leftMaxDist = leftEdge - 1;
-      int rightExtent = widthScaled - rightEdge;
+      int rightExtent = (int)widthScaled - rightEdge;
       int rightMaxDist = rightExtent - 1;
       const int fadeMax = 192;
+      bool useTemporal = handling == 4;
+      Pixel* temporalAbove = nullptr;
+      Pixel* temporalBelow = nullptr;
+      uint temporalWidth = 0;
+      uint temporalBaseRow = 0;
+      bool temporalReady = false;
+      if(useTemporal) {
+        uint interlaceFactor = ppufast.interlace() ? 2 : 1;
+        ppufast.ensureTemporalBuffer(widthScaled, scale, interlaceFactor);
+        if(ppufast.wsTemporalWidth == widthScaled && ppufast.wsTemporalScale == scale && ppufast.wsTemporalInterlace == interlaceFactor) {
+          temporalAbove = ppufast.wsTemporalAbove;
+          temporalBelow = ppufast.wsTemporalBelow;
+          temporalWidth = ppufast.wsTemporalWidth;
+          uint lineIndex = this->y;
+          uint fieldIndex = ppufast.interlace() ? field() : 0;
+          temporalBaseRow = (lineIndex * interlaceFactor + fieldIndex) * scale;
+          temporalReady = temporalAbove && temporalBelow;
+        }
+      }
       int xIndex = 0;
       for(uint ySub : range(scale)) {
         for(uint i : range(widthScaled)) {
-          int destX = xIndex;
-          int column = destX % widthScaled;
-          int row = destX / widthScaled;
+          int destX = xIndex++;
+          int column = destX % (int)widthScaled;
+          int row = destX / (int)widthScaled;
           int sampleColumn = column;
           bool outside = column < leftEdge || column >= rightEdge;
-          bool empty = outside && above[destX].priority == 0 && below[destX].priority == 0;
+          bool originalEmpty = outside && above[destX].priority == 0 && below[destX].priority == 0;
           bool applyMask = false;
+          bool allowTemporalWrite = true;
           int fade = 0;
 
-          if(handling == 1 && empty) { // clamp
-            sampleColumn = column < leftEdge ? leftEdge : rightEdge - 1;
-          } else if(handling == 2 && empty) { // mirror
-            if(column < leftEdge) {
-              int offset = leftEdge - 1 - column;
-              sampleColumn = leftEdge + offset;
-            } else {
-              int offset = column - rightEdge;
-              sampleColumn = rightEdge - 1 - offset;
+          auto computeFade = [&](int col) {
+            if(col < leftEdge) {
+              return leftMaxDist > 0 ? fadeMax * (leftMaxDist - col) / leftMaxDist : fadeMax;
             }
-            if(sampleColumn < leftEdge) sampleColumn = leftEdge;
-            if(sampleColumn >= rightEdge) sampleColumn = rightEdge - 1;
-          } else if(handling == 3 && empty) { // mask
-            applyMask = true;
-            if(column < leftEdge) {
-              fade = leftMaxDist > 0 ? fadeMax * (leftMaxDist - column) / leftMaxDist : fadeMax;
-            } else {
-              int dist = column - rightEdge;
-              fade = rightMaxDist > 0 ? fadeMax * dist / rightMaxDist : fadeMax;
+            int dist = col - rightEdge;
+            return rightMaxDist > 0 ? fadeMax * dist / rightMaxDist : fadeMax;
+          };
+
+          if(originalEmpty) {
+            if(handling == 1) { // clamp
+              sampleColumn = column < leftEdge ? leftEdge : rightEdge - 1;
+            } else if(handling == 2) { // mirror
+              if(column < leftEdge) {
+                int offset = leftEdge - 1 - column;
+                sampleColumn = leftEdge + offset;
+              } else {
+                int offset = column - rightEdge;
+                sampleColumn = rightEdge - 1 - offset;
+              }
+              if(sampleColumn < leftEdge) sampleColumn = leftEdge;
+              if(sampleColumn >= rightEdge) sampleColumn = rightEdge - 1;
+            } else if(handling == 3) { // mask
+              applyMask = true;
+              fade = computeFade(column);
             }
           }
 
-          int sampleIndex = row * widthScaled + sampleColumn;
+          int sampleIndex = row * (int)widthScaled + sampleColumn;
           Pixel srcAbove = above[sampleIndex];
           Pixel srcBelow = below[sampleIndex];
+
+          if(useTemporal && originalEmpty) {
+            Pixel prevAbove = {};
+            Pixel prevBelow = {};
+            if(temporalReady) {
+              uint index = (temporalBaseRow + row) * temporalWidth + column;
+              prevAbove = temporalAbove[index];
+              prevBelow = temporalBelow[index];
+            }
+            if(prevAbove.priority || prevBelow.priority) {
+              srcAbove = prevAbove;
+              srcBelow = prevBelow;
+              applyMask = false;
+            } else {
+              applyMask = true;
+              allowTemporalWrite = false;
+              fade = computeFade(column);
+            }
+          }
+
           if(applyMask) {
             auto applyFade = [&](Pixel& p) {
               uint32 color = p.color;
@@ -413,7 +458,12 @@ auto PPU::Line::render(bool fieldID) -> void {
           }
 
           *output++ = pixel(destX, srcAbove, srcBelow, ppu.widescreen(), wsm, wsma, bgFixedColors[ySub]);
-          xIndex++;
+
+          if(useTemporal && temporalReady && allowTemporalWrite) {
+            uint index = (temporalBaseRow + row) * temporalWidth + column;
+            temporalAbove[index] = srcAbove;
+            temporalBelow[index] = srcBelow;
+          }
         }
       }
     } else {

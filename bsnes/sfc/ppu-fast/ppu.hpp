@@ -36,6 +36,8 @@ struct PPU : PPUcounter {
   alwaysinline auto deinterlace() const -> bool;
   alwaysinline auto renderCycle() const -> uint;
   alwaysinline auto noVRAMBlocking() const -> bool;
+  auto ensureTemporalBuffer(uint width, uint scale, uint interlaceFactor) -> void;
+  auto clearTemporalBuffer() -> void;
 
   //ppu.cpp
   PPU();
@@ -299,6 +301,12 @@ public:
   uint saturation = 222;
   uint gamma = 222;
   uint wsExt = 0;
+
+  Pixel* wsTemporalAbove = nullptr;
+  Pixel* wsTemporalBelow = nullptr;
+  uint wsTemporalWidth = 0;
+  uint wsTemporalScale = 0;
+  uint wsTemporalInterlace = 0;
 
 
   uint ItemLimit = 0;

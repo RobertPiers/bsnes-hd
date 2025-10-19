@@ -573,7 +573,7 @@ static bool update_variables() // returns whether video dimensions have changed 
                 emulator->configure("Hacks/PPU/Mode7/WsBgCol", val);
         }
 
-        // wsHandling: off|clamp|mirror|mask
+        // wsHandling: off|clamp|mirror|mask|temporal
         var.key = "bsnes_mode7_wsHandling";
         var.value = NULL;
 
@@ -583,6 +583,7 @@ static bool update_variables() // returns whether video dimensions have changed 
                 if (strcmp(var.value,      "clamp") == 0) val = 1;
                 else if (strcmp(var.value, "mirror") == 0) val = 2;
                 else if (strcmp(var.value, "mask") == 0) val = 3;
+                else if (strcmp(var.value, "temporal") == 0) val = 4;
                 else if (strcmp(var.value, "off") == 0) val = 0;
                 emulator->configure("Hacks/PPU/Mode7/WsHandling", val);
         }

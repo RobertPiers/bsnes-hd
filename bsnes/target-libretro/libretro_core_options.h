@@ -770,6 +770,7 @@ struct retro_core_option_definition option_defs_us[] = {
          { "clamp",  "Extend last safe pixels"       },
          { "mirror", "Mirror edge pixels"            },
          { "mask",   "Fade unsafe areas"             },
+         { "temporal", "Reproject from previous frame" },
          { "off",    "Leave background fill"         },
          { NULL, NULL },
       },
