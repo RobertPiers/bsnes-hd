@@ -37,6 +37,7 @@ struct Screen {
     struct Screen {
       uint15 color;
        uint1 colorEnable;
+      uint16 depth;
     } above, below;
     uint1 transparent;
     uint1 blendMode;
