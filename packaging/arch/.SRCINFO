@@ -1,0 +1,24 @@
+pkgbase = bsnes-hd
+pkgver = 0.0.0
+pkgrel = 1
+pkgdesc = bsnes with HD Mode 7 and widescreen enhancements
+url = https://github.com/DerKoun/bsnes-hd
+arch = x86_64
+license = GPL3
+provides = bsnes
+conflicts = bsnes
+depends = gtk2
+depends = libpulse
+depends = libglvnd
+depends = cairo
+depends = sdl2
+depends = libxv
+depends = libao
+depends = openal
+depends = systemd-libs
+makedepends = git
+makedepends = mesa
+source = bsnes-hd::git+https://github.com/DerKoun/bsnes-hd.git
+sha256sums = SKIP
+
+pkgname = bsnes-hd

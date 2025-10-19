@@ -48,6 +48,7 @@ auto Configuration::process(Markup::Node document, bool load) -> void {
   bind(natural, "Hacks/PPU/Mode7/WindRad", hacks.ppu.mode7.windRad);
   bind(natural, "Hacks/PPU/Mode7/WsMode", hacks.ppu.mode7.wsMode);
   bind(natural, "Hacks/PPU/Mode7/WsBgCol", hacks.ppu.mode7.wsBgCol);
+  bind(natural, "Hacks/PPU/Mode7/WsHandling", hacks.ppu.mode7.wsHandling);
   bind(natural, "Hacks/PPU/Mode7/WsMarker", hacks.ppu.mode7.wsMarker);
   bind(natural, "Hacks/PPU/Mode7/WsMarkerAlpha", hacks.ppu.mode7.wsMarkerAlpha);
   bind(natural, "Hacks/PPU/Mode7/Supersample", hacks.ppu.mode7.supersample);

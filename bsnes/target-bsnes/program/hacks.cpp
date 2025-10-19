@@ -84,10 +84,11 @@ auto Program::hackCompatibility() -> void {
   emulator->configure("Hacks/PPU/Mode7/Strwin", false);
   emulator->configure("Hacks/PPU/Mode7/VramExt", 0x7fff);
   emulator->configure("Hacks/PPU/Mode7/BgGrad", settings.emulator.hack.ppu.mode7.bgGrad);	
-  emulator->configure("Hacks/PPU/Mode7/WindRad", settings.emulator.hack.ppu.mode7.windRad);	
-  emulator->configure("Hacks/PPU/Mode7/WsMode", settings.emulator.hack.ppu.mode7.wsMode);	
-  emulator->configure("Hacks/PPU/Mode7/WsBgCol", settings.emulator.hack.ppu.mode7.wsBgCol);	
-  emulator->configure("Hacks/PPU/Mode7/WsMarker", settings.emulator.hack.ppu.mode7.wsMarker);	
+  emulator->configure("Hacks/PPU/Mode7/WindRad", settings.emulator.hack.ppu.mode7.windRad);
+  emulator->configure("Hacks/PPU/Mode7/WsMode", settings.emulator.hack.ppu.mode7.wsMode);
+  emulator->configure("Hacks/PPU/Mode7/WsBgCol", settings.emulator.hack.ppu.mode7.wsBgCol);
+  emulator->configure("Hacks/PPU/Mode7/WsHandling", settings.emulator.hack.ppu.mode7.wsHandling);
+  emulator->configure("Hacks/PPU/Mode7/WsMarker", settings.emulator.hack.ppu.mode7.wsMarker);
   emulator->configure("Hacks/PPU/Mode7/WsMarkerAlpha", settings.emulator.hack.ppu.mode7.wsMarkerAlpha);	
   emulator->configure("Hacks/PPU/Mode7/Supersample", settings.emulator.hack.ppu.mode7.supersample);	
   emulator->configure("Hacks/PPU/Mode7/Mosaic", settings.emulator.hack.ppu.mode7.mosaic);
@@ -187,6 +188,9 @@ auto Program::hackCompatibility() -> void {
             case 'm': //wsMarker 0:off 1-10:lines 11-20:darken, wsMarkerAlpha 1-10/11-20:opaque-transparent
               emulator->configure("Hacks/PPU/Mode7/WsMarker", n < 1 || n > 20 ? 0 : (n - 1) / 10 + 1);
               emulator->configure("Hacks/PPU/Mode7/WsMarkerAlpha", (n - 1) % 10 + 1);
+              break;
+            case 'h': //widescreen handling 0:off 1:clamp 2:mirror 3:mask
+              emulator->configure("Hacks/PPU/Mode7/WsHandling", n > 3 ? 0 : n);
               break;
             case 'P': //Perspective 0:off 1-3:auto 4-6+:on (wide, medium, narrow)
               emulator->configure("Hacks/PPU/Mode7/Perspective", n < 1 || n > 6 ? 0 : n );

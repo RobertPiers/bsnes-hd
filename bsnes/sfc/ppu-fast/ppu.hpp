@@ -30,6 +30,7 @@ struct PPU : PPUcounter {
   alwaysinline auto wsOverrideCandidate() const -> bool;
   alwaysinline auto wsOverride() const -> bool;
   alwaysinline auto wsBgCol() const -> bool;
+  alwaysinline auto wsHandling() const -> uint;
   alwaysinline auto wsMarker() const -> uint;
   alwaysinline auto wsMarkerAlpha() const -> uint;
   alwaysinline auto deinterlace() const -> bool;
