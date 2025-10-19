@@ -61,6 +61,43 @@ auto PPU::wsMarkerAlpha() const -> uint { return configuration.hacks.ppu.mode7.w
 auto PPU::deinterlace() const -> bool { return configuration.hacks.ppu.deinterlace; }
 auto PPU::renderCycle() const -> uint { return configuration.hacks.ppu.renderCycle; }
 auto PPU::noVRAMBlocking() const -> bool { return configuration.hacks.ppu.noVRAMBlocking; }
+
+auto PPU::ensureTemporalBuffer(uint width, uint scale, uint interlaceFactor) -> void {
+  if(width == 0 || scale == 0 || interlaceFactor == 0) return;
+  uint height = 240 * interlaceFactor;
+  if(wsTemporalWidth == width && wsTemporalScale == scale && wsTemporalInterlace == interlaceFactor
+  && wsTemporalAbove && wsTemporalBelow) return;
+
+  delete[] wsTemporalAbove;
+  delete[] wsTemporalBelow;
+
+  wsTemporalWidth = width;
+  wsTemporalScale = scale;
+  wsTemporalInterlace = interlaceFactor;
+
+  uint rows = height * scale;
+  uint total = width * rows;
+  if(total == 0) {
+    wsTemporalAbove = nullptr;
+    wsTemporalBelow = nullptr;
+    return;
+  }
+
+  wsTemporalAbove = new Pixel[total];
+  wsTemporalBelow = new Pixel[total];
+  memory::fill<Pixel>(wsTemporalAbove, total);
+  memory::fill<Pixel>(wsTemporalBelow, total);
+}
+
+auto PPU::clearTemporalBuffer() -> void {
+  if(!wsTemporalAbove || !wsTemporalBelow) return;
+  if(wsTemporalWidth == 0 || wsTemporalScale == 0) return;
+  uint interlaceFactor = wsTemporalInterlace ? wsTemporalInterlace : 1;
+  uint rows = 240 * interlaceFactor * wsTemporalScale;
+  uint total = wsTemporalWidth * rows;
+  memory::fill<Pixel>(wsTemporalAbove, total);
+  memory::fill<Pixel>(wsTemporalBelow, total);
+}
 #define ppu ppufast
 
 PPU::PPU() {
@@ -72,6 +109,8 @@ PPU::PPU() {
 
 PPU::~PPU() {
   delete[] output;
+  delete[] wsTemporalAbove;
+  delete[] wsTemporalBelow;
   for(uint l : range(16)) delete[] lightTable[l];
 }
 
@@ -192,6 +231,7 @@ auto PPU::load() -> bool {
 auto PPU::power(bool reset) -> void {
   PPUcounter::reset();
   memory::fill<uint16>(output, 256 * 61440);
+  clearTemporalBuffer();
 
   function<uint8 (uint, uint8)> reader{&PPU::readIO, this};
   function<void  (uint, uint8)> writer{&PPU::writeIO, this};
