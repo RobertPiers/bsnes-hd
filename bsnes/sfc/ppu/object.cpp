@@ -60,6 +60,8 @@ auto PPU::Object::onScanline(PPU::OAM::Object& sprite) -> bool {
 auto PPU::Object::run() -> void {
   output.above.priority = 0;
   output.below.priority = 0;
+  output.above.depth = ppu.twofive.defaultDepth();
+  output.below.depth = ppu.twofive.defaultDepth();
 
   auto oamTile = t.tile[!t.active];
   uint x = t.x++;
@@ -78,14 +80,18 @@ auto PPU::Object::run() -> void {
     color += tile.data >> shift + 21 & 8;
 
     if(color) {
+      uint priorityValue = io.priority[tile.priority];
+      uint16 depth = ppu.twofive.depthForObject(priorityValue, color);
       if(io.aboveEnable) {
         output.above.palette = tile.palette + color;
-        output.above.priority = io.priority[tile.priority];
+        output.above.priority = priorityValue;
+        output.above.depth = depth;
       }
 
       if(io.belowEnable) {
         output.below.palette = tile.palette + color;
-        output.below.priority = io.priority[tile.priority];
+        output.below.priority = priorityValue;
+        output.below.depth = depth;
       }
     }
   }
@@ -216,6 +222,8 @@ auto PPU::Object::power() -> void {
 
   output.above.palette = 0;
   output.above.priority = 0;
+  output.above.depth = ppu.twofive.defaultDepth();
   output.below.palette = 0;
   output.below.priority = 0;
+  output.below.depth = ppu.twofive.defaultDepth();
 }

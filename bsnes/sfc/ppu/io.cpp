@@ -72,7 +72,12 @@ auto PPU::writeCGRAM(uint8 addr, uint15 data) -> void {
 auto PPU::readIO(uint addr, uint8 data) -> uint8 {
   cpu.synchronizePPU();
 
-  switch(addr & 0xffff) {
+  uint16 address = addr & 0xffff;
+  if(address >= 0x21c0 && address <= 0x21d7) {
+    return twofive.readIO(address);
+  }
+
+  switch(address) {
 
   case 0x2104: case 0x2105: case 0x2106: case 0x2108:
   case 0x2109: case 0x210a: case 0x2114: case 0x2115:
@@ -200,7 +205,13 @@ auto PPU::readIO(uint addr, uint8 data) -> uint8 {
 auto PPU::writeIO(uint addr, uint8 data) -> void {
   cpu.synchronizePPU();
 
-  switch(addr & 0xffff) {
+  uint16 address = addr & 0xffff;
+  if(address >= 0x21c0 && address <= 0x21d7) {
+    twofive.writeIO(address, data);
+    return;
+  }
+
+  switch(address) {
 
   //INIDISP
   case 0x2100: {

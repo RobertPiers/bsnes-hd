@@ -47,6 +47,7 @@ struct Background {
     uint8 priority;  //0 = none (transparent)
     uint8 palette;
     uint3 paletteGroup;
+    uint16 depth;
   } above, below;
 
   struct Output {

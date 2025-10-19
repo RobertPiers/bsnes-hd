@@ -84,6 +84,7 @@ struct Object {
     struct Pixel {
       uint8 priority;  //0 = none (transparent)
       uint8 palette;
+      uint16 depth;
     } above, below;
   } output;
 
