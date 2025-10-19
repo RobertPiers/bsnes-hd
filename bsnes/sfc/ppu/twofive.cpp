@@ -102,26 +102,24 @@ auto PPU::TwoFiveD::depthForObject(uint priority, uint color) const -> uint16 {
 }
 
 auto PPU::TwoFiveD::beginScanline(uint y, bool interlace, bool field) -> void {
-  if(!io.enable) {
-    output.lineA = nullptr;
-    output.lineB = nullptr;
-    return;
-  }
-
   auto offset = y * 1024u;
   output.lineA = output.buffer + offset;
   output.lineB = output.lineA + (interlace ? 0 : 512);
   if(interlace && field) output.lineA += 512, output.lineB += 512;
 }
 
-auto PPU::TwoFiveD::write(uint16 depth, bool hires) -> void {
-  if(!io.enable || !output.lineA || !output.lineB) return;
-  (void)hires;
+auto PPU::TwoFiveD::write(uint16 belowDepth, bool belowVisible, uint16 aboveDepth, bool aboveVisible, uint16 frontDepth, bool hires) -> void {
+  if(!output.lineA || !output.lineB) return;
 
-  *output.lineA++ = depth;
-  *output.lineB++ = depth;
-  *output.lineA++ = depth;
-  *output.lineB++ = depth;
+  uint16 first = hires ? (belowVisible ? belowDepth : io.farDepth) : frontDepth;
+  uint16 second = hires ? (aboveVisible ? aboveDepth : io.farDepth) : frontDepth;
+
+  if(!io.enable) first = second = io.farDepth;
+
+  *output.lineA++ = first;
+  *output.lineB++ = first;
+  *output.lineA++ = second;
+  *output.lineB++ = second;
 }
 
 auto PPU::TwoFiveD::frontDepth(uint16 aboveDepth, bool aboveEnable, uint16 belowDepth, bool belowEnable) const -> uint16 {
