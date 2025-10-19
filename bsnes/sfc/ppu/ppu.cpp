@@ -74,7 +74,7 @@ auto PPU::load() -> bool {
 }
 
 auto PPU::power(bool reset) -> void {
-  twofive.power();
+  twofive.power(TwoFiveD::makeSettings(configuration.hacks.ppu.twofive));
   if(system.fastPPU()) {
     create(PPUfast::Enter, system.cpuFrequency());
     ppufast.power(reset);

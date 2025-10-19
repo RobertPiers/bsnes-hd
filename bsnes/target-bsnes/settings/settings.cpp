@@ -143,6 +143,20 @@ auto Settings::process(bool load) -> void {
   bind(natural, "Emulator/Hack/PPU/Mode7/WsMarkerAlpha", emulator.hack.ppu.mode7.wsMarkerAlpha);
   bind(natural, "Emulator/Hack/PPU/Mode7/Supersample",   emulator.hack.ppu.mode7.supersample);
   bind(natural, "Emulator/Hack/PPU/Mode7/Mosaic",        emulator.hack.ppu.mode7.mosaic);
+
+  bind(boolean, "Emulator/Hack/PPU/TwoFiveD/Enable",            emulator.hack.ppu.twofive.enable);
+  bind(boolean, "Emulator/Hack/PPU/TwoFiveD/OverridePriority",  emulator.hack.ppu.twofive.overridePriority);
+  bind(boolean, "Emulator/Hack/PPU/TwoFiveD/ClampDepth",        emulator.hack.ppu.twofive.clampDepth);
+  bind(natural, "Emulator/Hack/PPU/TwoFiveD/FarDepth",          emulator.hack.ppu.twofive.farDepth);
+
+  static const char* twofiveLayers[] = {"BG1", "BG2", "BG3", "BG4", "OBJ"};
+  for(uint index = 0; index < 5; index++) {
+    auto& layer = index < 4 ? emulator.hack.ppu.twofive.bg[index] : emulator.hack.ppu.twofive.obj;
+    string prefix = {"Emulator/Hack/PPU/TwoFiveD/", twofiveLayers[index]};
+    bind(natural, {prefix, "/Base"}, layer.base);
+    bind(natural, {prefix, "/PaletteScale"}, layer.paletteScale);
+    bind(natural, {prefix, "/PriorityScale"}, layer.priorityScale);
+  }
   bind(boolean, "Emulator/Hack/DSP/Fast",                emulator.hack.dsp.fast);
   bind(boolean, "Emulator/Hack/DSP/Cubic",               emulator.hack.dsp.cubic);
   bind(boolean, "Emulator/Hack/DSP/EchoShadow",          emulator.hack.dsp.echoShadow);

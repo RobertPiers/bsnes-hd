@@ -133,6 +133,17 @@ struct Settings : Markup::Node {
           uint wsMarker = 0;
           uint wsMarkerAlpha = 1;
         } mode7;
+        struct TwoFiveD {
+          bool enable = false;
+          bool overridePriority = false;
+          bool clampDepth = true;
+          uint farDepth = 0xffff;
+          struct Layer {
+            uint base = 0;
+            uint paletteScale = 0;
+            uint priorityScale = 0x10;
+          } bg[4], obj;
+        } twofive;
       } ppu;
       struct DSP {
         bool fast = true;
@@ -431,6 +442,46 @@ public:
       ComboButton bgGrad{&hdDLayout, Size{0, 0}};
       Label windRadLabel{&hdDLayout, Size{0, 0}};
       ComboButton windRad{&hdDLayout, Size{0, 0}};
+  Label twoFiveLabel{this, Size{~0, 0}, 2};
+  HorizontalLayout twoFiveToggleLayout{this, Size{~0, 0}};
+    CheckLabel twoFiveEnable{&twoFiveToggleLayout, Size{0, 0}};
+    CheckLabel twoFiveOverride{&twoFiveToggleLayout, Size{0, 0}};
+    CheckLabel twoFiveClamp{&twoFiveToggleLayout, Size{0, 0}};
+  HorizontalLayout twoFiveHeaderLayout{this, Size{~0, 0}};
+    Label twoFiveLayerHeader{&twoFiveHeaderLayout, Size{80_sx, 0}};
+    Label twoFiveBaseHeader{&twoFiveHeaderLayout, Size{80_sx, 0}};
+    Label twoFivePaletteHeader{&twoFiveHeaderLayout, Size{80_sx, 0}};
+    Label twoFivePriorityHeader{&twoFiveHeaderLayout, Size{80_sx, 0}};
+  HorizontalLayout twoFiveFarLayout{this, Size{~0, 0}};
+    Label twoFiveFarLabel{&twoFiveFarLayout, Size{80_sx, 0}};
+    LineEdit twoFiveFarValue{&twoFiveFarLayout, Size{80_sx, 0}};
+    Label twoFiveFarPaletteSpacer{&twoFiveFarLayout, Size{80_sx, 0}};
+    Label twoFiveFarPrioritySpacer{&twoFiveFarLayout, Size{80_sx, 0}};
+  HorizontalLayout twoFiveBG1Layout{this, Size{~0, 0}};
+    Label twoFiveBG1Label{&twoFiveBG1Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG1Base{&twoFiveBG1Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG1Palette{&twoFiveBG1Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG1Priority{&twoFiveBG1Layout, Size{80_sx, 0}};
+  HorizontalLayout twoFiveBG2Layout{this, Size{~0, 0}};
+    Label twoFiveBG2Label{&twoFiveBG2Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG2Base{&twoFiveBG2Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG2Palette{&twoFiveBG2Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG2Priority{&twoFiveBG2Layout, Size{80_sx, 0}};
+  HorizontalLayout twoFiveBG3Layout{this, Size{~0, 0}};
+    Label twoFiveBG3Label{&twoFiveBG3Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG3Base{&twoFiveBG3Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG3Palette{&twoFiveBG3Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG3Priority{&twoFiveBG3Layout, Size{80_sx, 0}};
+  HorizontalLayout twoFiveBG4Layout{this, Size{~0, 0}};
+    Label twoFiveBG4Label{&twoFiveBG4Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG4Base{&twoFiveBG4Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG4Palette{&twoFiveBG4Layout, Size{80_sx, 0}};
+    LineEdit twoFiveBG4Priority{&twoFiveBG4Layout, Size{80_sx, 0}};
+  HorizontalLayout twoFiveOBJLayout{this, Size{~0, 0}};
+    Label twoFiveOBJLabel{&twoFiveOBJLayout, Size{80_sx, 0}};
+    LineEdit twoFiveOBJBase{&twoFiveOBJLayout, Size{80_sx, 0}};
+    LineEdit twoFiveOBJPalette{&twoFiveOBJLayout, Size{80_sx, 0}};
+    LineEdit twoFiveOBJPriority{&twoFiveOBJLayout, Size{80_sx, 0}};
 
   HorizontalLayout bottomLayout{this, Size{~0, 0}};
     //

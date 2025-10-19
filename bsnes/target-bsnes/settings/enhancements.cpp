@@ -166,7 +166,82 @@ auto EnhancementSettings::create() -> void {
     else if (5 == mode7Widescreen.selected().offset()) settings.emulator.hack.ppu.mode7.widescreen =  2109;
     emulator->configure("Hacks/PPU/Mode7/Widescreen",  settings.emulator.hack.ppu.mode7.widescreen);
   });
-  
+
+  twoFiveLabel.setText("PPU 2.5D").setFont(Font().setBold());
+  twoFiveEnable.setText("Enable depth buffer").setChecked(settings.emulator.hack.ppu.twofive.enable).onToggle([&] {
+    settings.emulator.hack.ppu.twofive.enable = twoFiveEnable.checked();
+    emulator->configure("Hacks/PPU/TwoFiveD/Enable", settings.emulator.hack.ppu.twofive.enable);
+  });
+  twoFiveOverride.setText("Override SNES priority").setChecked(settings.emulator.hack.ppu.twofive.overridePriority).onToggle([&] {
+    settings.emulator.hack.ppu.twofive.overridePriority = twoFiveOverride.checked();
+    emulator->configure("Hacks/PPU/TwoFiveD/OverridePriority", settings.emulator.hack.ppu.twofive.overridePriority);
+  });
+  twoFiveClamp.setText("Clamp to 16-bit").setChecked(settings.emulator.hack.ppu.twofive.clampDepth).onToggle([&] {
+    settings.emulator.hack.ppu.twofive.clampDepth = twoFiveClamp.checked();
+    emulator->configure("Hacks/PPU/TwoFiveD/ClampDepth", settings.emulator.hack.ppu.twofive.clampDepth);
+  });
+
+  twoFiveLayerHeader.setText("Layer");
+  twoFiveBaseHeader.setText("Base");
+  twoFivePaletteHeader.setText("Palette scale");
+  twoFivePriorityHeader.setText("Priority scale");
+
+  auto connectField = [&](LineEdit& field, uint initial, uint max, auto apply) {
+    bool inUpdate = false;
+    auto setValue = [&](uint value) {
+      inUpdate = true;
+      field.setText({value});
+      inUpdate = false;
+    };
+    auto callback = apply;
+    field.onChange([&, max, callback] {
+      if(inUpdate) return;
+      auto value = field.text().natural();
+      if(value > max) value = max;
+      callback(value);
+      setValue(value);
+    });
+    setValue(initial);
+  };
+
+  twoFiveFarLabel.setText("Far depth");
+  twoFiveFarPaletteSpacer.setText("");
+  twoFiveFarPrioritySpacer.setText("");
+  connectField(twoFiveFarValue, settings.emulator.hack.ppu.twofive.farDepth, 0xffff, [&](uint value) {
+    settings.emulator.hack.ppu.twofive.farDepth = value;
+    emulator->configure("Hacks/PPU/TwoFiveD/FarDepth", value);
+  });
+
+  Label* layerLabels[] = {&twoFiveBG1Label, &twoFiveBG2Label, &twoFiveBG3Label, &twoFiveBG4Label, &twoFiveOBJLabel};
+  LineEdit* baseEditors[] = {&twoFiveBG1Base, &twoFiveBG2Base, &twoFiveBG3Base, &twoFiveBG4Base, &twoFiveOBJBase};
+  LineEdit* paletteEditors[] = {&twoFiveBG1Palette, &twoFiveBG2Palette, &twoFiveBG3Palette, &twoFiveBG4Palette, &twoFiveOBJPalette};
+  LineEdit* priorityEditors[] = {&twoFiveBG1Priority, &twoFiveBG2Priority, &twoFiveBG3Priority, &twoFiveBG4Priority, &twoFiveOBJPriority};
+  const char* layerKeys[] = {"BG1", "BG2", "BG3", "BG4", "OBJ"};
+
+  for(uint index = 0; index < 5; index++) {
+    auto* label = layerLabels[index];
+    auto* base = baseEditors[index];
+    auto* palette = paletteEditors[index];
+    auto* priority = priorityEditors[index];
+    const char* key = layerKeys[index];
+    auto* data = index < 4 ? &settings.emulator.hack.ppu.twofive.bg[index]
+                           : &settings.emulator.hack.ppu.twofive.obj;
+
+    label->setText(key);
+    connectField(*base, data->base, 0xffff, [&, data, key](uint value) {
+      data->base = value;
+      emulator->configure({"Hacks/PPU/TwoFiveD/", key, "/Base"}, value);
+    });
+    connectField(*palette, data->paletteScale, 0xff, [&, data, key](uint value) {
+      data->paletteScale = value;
+      emulator->configure({"Hacks/PPU/TwoFiveD/", key, "/PaletteScale"}, value);
+    });
+    connectField(*priority, data->priorityScale, 0xff, [&, data, key](uint value) {
+      data->priorityScale = value;
+      emulator->configure({"Hacks/PPU/TwoFiveD/", key, "/PriorityScale"}, value);
+    });
+  }
+
   wsBG1Label.setText("BG1:");
   wsBG1.append(ComboButtonItem().setText("off"));
   wsBG1.append(ComboButtonItem().setText("on"));

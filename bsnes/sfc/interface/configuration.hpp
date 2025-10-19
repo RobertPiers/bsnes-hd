@@ -1,3 +1,5 @@
+#pragma once
+
 struct Configuration {
   auto read() -> string;
   auto read(string) -> string;
@@ -69,6 +71,17 @@ struct Configuration {
         uint supersample = 1;
         uint mosaic = 1;
       } mode7;
+      struct TwoFiveD {
+        bool enable = false;
+        bool overridePriority = false;
+        bool clampDepth = true;
+        uint farDepth = 0xffff;
+        struct Layer {
+          uint base = 0;
+          uint paletteScale = 0;
+          uint priorityScale = 0x10;
+        } bg[4], obj;
+      } twofive;
     } ppu;
     struct DSP {
       bool fast = true;

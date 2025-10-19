@@ -1,21 +1,65 @@
 struct TwoFiveD {
-  auto power() -> void {
-    io.enable = false;
-    io.overridePriority = false;
-    io.clampDepth = true;
-    io.farDepth = 0xffff;
-    for(auto index : range(4)) {
-      io.bg[index].base = 0;
-      io.bg[index].paletteScale = 0;
-      io.bg[index].priorityScale = 0x10;
-    }
-    io.obj.base = 0;
-    io.obj.paletteScale = 0;
-    io.obj.priorityScale = 0x10;
+  struct Settings {
+    bool enable = false;
+    bool overridePriority = false;
+    bool clampDepth = true;
+    uint farDepth = 0xffff;
+    struct Layer {
+      uint base = 0;
+      uint paletteScale = 0;
+      uint priorityScale = 0x10;
+    } bg[4], obj;
+  };
 
+  template<typename Source> static auto makeSettings(const Source& source) -> Settings {
+    Settings settings;
+    settings.enable = source.enable;
+    settings.overridePriority = source.overridePriority;
+    settings.clampDepth = source.clampDepth;
+    settings.farDepth = source.farDepth;
+    for(uint index : range(4)) {
+      settings.bg[index].base = source.bg[index].base;
+      settings.bg[index].paletteScale = source.bg[index].paletteScale;
+      settings.bg[index].priorityScale = source.bg[index].priorityScale;
+    }
+    settings.obj.base = source.obj.base;
+    settings.obj.paletteScale = source.obj.paletteScale;
+    settings.obj.priorityScale = source.obj.priorityScale;
+    return settings;
+  }
+
+  auto power(const Settings& settings) -> void {
+    configure(settings);
     output.lineA = nullptr;
     output.lineB = nullptr;
     memory::fill<uint16>(output.buffer, io.farDepth);
+  }
+
+  auto configure(const Settings& settings) -> void {
+    io.enable = settings.enable;
+    io.overridePriority = settings.overridePriority;
+    io.clampDepth = settings.clampDepth;
+
+    auto clamp16 = [](uint value) -> uint16 { return (uint16)std::min(value, 0xffffu); };
+    auto clamp8  = [](uint value) -> uint8 { return (uint8)std::min(value, 0xffu); };
+
+    uint16 farDepth = clamp16(settings.farDepth);
+    bool farChanged = io.farDepth != farDepth;
+    io.farDepth = farDepth;
+
+    for(uint index : range(4)) {
+      io.bg[index].base = clamp16(settings.bg[index].base);
+      io.bg[index].paletteScale = clamp8(settings.bg[index].paletteScale);
+      io.bg[index].priorityScale = clamp8(settings.bg[index].priorityScale);
+    }
+
+    io.obj.base = clamp16(settings.obj.base);
+    io.obj.paletteScale = clamp8(settings.obj.paletteScale);
+    io.obj.priorityScale = clamp8(settings.obj.priorityScale);
+
+    if(farChanged || !io.enable) {
+      memory::fill<uint16>(output.buffer, io.farDepth);
+    }
   }
 
   auto serialize(serializer& s) -> void {

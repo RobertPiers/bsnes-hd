@@ -53,6 +53,21 @@ auto Configuration::process(Markup::Node document, bool load) -> void {
   bind(natural, "Hacks/PPU/Mode7/WsMarkerAlpha", hacks.ppu.mode7.wsMarkerAlpha);
   bind(natural, "Hacks/PPU/Mode7/Supersample", hacks.ppu.mode7.supersample);
   bind(natural, "Hacks/PPU/Mode7/Mosaic", hacks.ppu.mode7.mosaic);
+
+  bind(boolean, "Hacks/PPU/TwoFiveD/Enable", hacks.ppu.twofive.enable);
+  bind(boolean, "Hacks/PPU/TwoFiveD/OverridePriority", hacks.ppu.twofive.overridePriority);
+  bind(boolean, "Hacks/PPU/TwoFiveD/ClampDepth", hacks.ppu.twofive.clampDepth);
+  bind(natural, "Hacks/PPU/TwoFiveD/FarDepth", hacks.ppu.twofive.farDepth);
+
+  static const char* twofiveLayers[] = {"BG1", "BG2", "BG3", "BG4", "OBJ"};
+  for(uint index = 0; index < 5; index++) {
+    auto& layer = index < 4 ? hacks.ppu.twofive.bg[index] : hacks.ppu.twofive.obj;
+    string prefix = {"Hacks/PPU/TwoFiveD/", twofiveLayers[index]};
+    bind(natural, {prefix, "/Base"}, layer.base);
+    bind(natural, {prefix, "/PaletteScale"}, layer.paletteScale);
+    bind(natural, {prefix, "/PriorityScale"}, layer.priorityScale);
+  }
+
   bind(boolean, "Hacks/DSP/Fast", hacks.dsp.fast);
   bind(boolean, "Hacks/DSP/Cubic", hacks.dsp.cubic);
   bind(boolean, "Hacks/DSP/EchoShadow", hacks.dsp.echoShadow);
@@ -79,7 +94,9 @@ auto Configuration::write(string configuration) -> bool {
   *this = {};
 
   if(auto document = BML::unserialize(configuration)) {
-    return process(document, true), true;
+    process(document, true);
+    ppu.twofive.configure(TwoFiveD::makeSettings(hacks.ppu.twofive));
+    return true;
   }
 
   return false;
@@ -91,7 +108,11 @@ auto Configuration::write(string name, string value) -> bool {
   auto document = BML::unserialize(read());
   if(auto node = document[name]) {
     node.setValue(value);
-    return process(document, true), true;
+    process(document, true);
+    if(name.beginsWith("Hacks/PPU/TwoFiveD/")) {
+      ppu.twofive.configure(TwoFiveD::makeSettings(hacks.ppu.twofive));
+    }
+    return true;
   }
 
   return false;

@@ -14,6 +14,18 @@ auto Program::load() -> void {
   emulator->configure("Hacks/PPU/Mode7/Perspective", settings.emulator.hack.ppu.mode7.perspective);
   emulator->configure("Hacks/PPU/Mode7/Supersample", settings.emulator.hack.ppu.mode7.supersample);
   emulator->configure("Hacks/PPU/Mode7/Mosaic", settings.emulator.hack.ppu.mode7.mosaic);
+  emulator->configure("Hacks/PPU/TwoFiveD/Enable", settings.emulator.hack.ppu.twofive.enable);
+  emulator->configure("Hacks/PPU/TwoFiveD/OverridePriority", settings.emulator.hack.ppu.twofive.overridePriority);
+  emulator->configure("Hacks/PPU/TwoFiveD/ClampDepth", settings.emulator.hack.ppu.twofive.clampDepth);
+  emulator->configure("Hacks/PPU/TwoFiveD/FarDepth", settings.emulator.hack.ppu.twofive.farDepth);
+  static const char* twofiveLayers[] = {"BG1", "BG2", "BG3", "BG4", "OBJ"};
+  for(uint index = 0; index < 5; index++) {
+    auto& layer = index < 4 ? settings.emulator.hack.ppu.twofive.bg[index] : settings.emulator.hack.ppu.twofive.obj;
+    string prefix = {"Hacks/PPU/TwoFiveD/", twofiveLayers[index]};
+    emulator->configure({prefix, "/Base"}, layer.base);
+    emulator->configure({prefix, "/PaletteScale"}, layer.paletteScale);
+    emulator->configure({prefix, "/PriorityScale"}, layer.priorityScale);
+  }
   emulator->configure("Hacks/DSP/Fast", settings.emulator.hack.dsp.fast);
   emulator->configure("Hacks/DSP/Cubic", settings.emulator.hack.dsp.cubic);
   emulator->configure("Hacks/DSP/EchoShadow", settings.emulator.hack.dsp.echoShadow);
