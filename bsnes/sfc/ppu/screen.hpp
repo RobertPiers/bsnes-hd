@@ -44,7 +44,7 @@ struct Screen {
     uint1 colorHalve;
   } math;
 
-  struct LayerID { enum : uint8 { Backdrop = 0, BG1 = 1, BG2 = 2, BG3 = 3, BG4 = 4, OBJ = 5, Fixed = 6 }; };
+  struct LayerID { enum : uint3 { Backdrop = 0, BG1 = 1, BG2 = 2, BG3 = 3, BG4 = 4, OBJ = 5, Fixed = 6 }; };
 
   friend class PPU;
 };
