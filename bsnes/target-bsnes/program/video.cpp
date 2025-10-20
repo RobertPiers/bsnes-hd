@@ -17,6 +17,7 @@ auto Program::updateVideoDriver(Window parent) -> void {
     updateVideoShader();
   }
 
+  updateVideoCamera();
   video.onUpdate([&](uint width, uint height) {
     if(!emulator->loaded()) video.clear();
   });
@@ -60,6 +61,20 @@ auto Program::updateVideoFormat() -> void {
 
 auto Program::updateVideoShader() -> void {
   video.setShader(settings.video.shader);
+}
+
+auto Program::updateVideoCamera() -> void {
+  Video::CameraSettings camera;
+  camera.enabled = settings.video.camera.enabled;
+  camera.yaw = settings.video.camera.yaw;
+  camera.pitch = settings.video.camera.pitch;
+  camera.roll = settings.video.camera.roll;
+  camera.offsetX = settings.video.camera.offsetX;
+  camera.offsetY = settings.video.camera.offsetY;
+  camera.offsetZ = settings.video.camera.offsetZ;
+  camera.zoom = settings.video.camera.zoom;
+  camera.perspective = settings.video.camera.perspective;
+  video.setCamera(camera);
 }
 
 auto Program::updateVideoEffects() -> void {

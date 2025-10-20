@@ -74,6 +74,11 @@ struct VideoGLX : VideoDriver, OpenGL {
     return true;
   }
 
+  auto setCamera(const Video::CameraSettings& settings) -> bool override {
+    OpenGL::setCamera(settings);
+    return true;
+  }
+
   auto clear() -> void override {
     OpenGL::clear();
     if(_doubleBuffer) glXSwapBuffers(_display, _glXWindow);
