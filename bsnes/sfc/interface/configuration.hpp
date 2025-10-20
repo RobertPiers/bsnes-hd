@@ -30,6 +30,17 @@ struct Configuration {
     uint saturation = 100;
     uint gamma = 100;
     uint luminance = 100;
+    struct Camera {
+      bool enabled = false;
+      int yaw = 0;
+      int pitch = 0;
+      int roll = 0;
+      int offsetX = 0;
+      int offsetY = 0;
+      int offsetZ = 0;
+      int zoom = 100;
+      int perspective = 0;
+    } camera;
   } video;
 
   struct Hacks {

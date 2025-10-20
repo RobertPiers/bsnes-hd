@@ -27,6 +27,7 @@ struct VideoDriver {
   virtual auto setFlush(bool flush) -> bool { return true; }
   virtual auto setFormat(string format) -> bool { return true; }
   virtual auto setShader(string shader) -> bool { return true; }
+  virtual auto setCamera(const Video::CameraSettings&) -> bool { return false; }
 
   virtual auto clear() -> void {}
   virtual auto size(uint& width, uint& height) -> void {}
@@ -54,6 +55,18 @@ struct Video {
   static auto hasDriver(string driver) -> bool { return (bool)hasDrivers().find(driver); }
   static auto optimalDriver() -> string;
   static auto safestDriver() -> string;
+
+  struct CameraSettings {
+    bool enabled = false;
+    int yaw = 0;
+    int pitch = 0;
+    int roll = 0;
+    int offsetX = 0;
+    int offsetY = 0;
+    int offsetZ = 0;
+    int zoom = 100;
+    int perspective = 0;
+  };
 
   struct Monitor {
     string name;
@@ -107,6 +120,7 @@ struct Video {
   auto setFlush(bool flush) -> bool;
   auto setFormat(string format) -> bool;
   auto setShader(string shader) -> bool;
+  auto setCamera(const CameraSettings&) -> void;
 
   auto clear() -> void;
   struct Size {
@@ -131,4 +145,5 @@ protected:
   Video& self;
   unique_pointer<VideoDriver> instance;
   function<void (uint, uint)> update;
+  CameraSettings cameraSettings;
 };

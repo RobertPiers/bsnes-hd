@@ -28,6 +28,18 @@ struct Settings : Markup::Node {
     bool overscan = false;
     bool blur = false;
     string filter = "None";
+
+    struct Camera {
+      bool enabled = false;
+      int yaw = 0;
+      int pitch = 0;
+      int roll = 0;
+      int offsetX = 0;
+      int offsetY = 0;
+      int offsetZ = 0;
+      int zoom = 100;
+      int perspective = 0;
+    } camera;
   } video;
 
   struct Audio {
@@ -184,6 +196,40 @@ private:
   //
   CheckLabel dimmingOption{this, Size{~0, 0}};
   CheckLabel snowOption{this, Size{~0, 0}};
+  Label cameraLabel{this, Size{~0, 0}, 2};
+  CheckLabel cameraEnable{this, Size{~0, 0}};
+  TableLayout cameraLayout{this, Size{~0, 0}};
+    Label cameraYawLabel{&cameraLayout, Size{0, 0}};
+    Label cameraYawValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraYawSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraPitchLabel{&cameraLayout, Size{0, 0}};
+    Label cameraPitchValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraPitchSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraRollLabel{&cameraLayout, Size{0, 0}};
+    Label cameraRollValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraRollSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraOffsetXLabel{&cameraLayout, Size{0, 0}};
+    Label cameraOffsetXValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraOffsetXSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraOffsetYLabel{&cameraLayout, Size{0, 0}};
+    Label cameraOffsetYValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraOffsetYSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraOffsetZLabel{&cameraLayout, Size{0, 0}};
+    Label cameraOffsetZValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraOffsetZSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraZoomLabel{&cameraLayout, Size{0, 0}};
+    Label cameraZoomValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraZoomSlider{&cameraLayout, Size{~0, 0}};
+  //
+    Label cameraPerspectiveLabel{&cameraLayout, Size{0, 0}};
+    Label cameraPerspectiveValue{&cameraLayout, Size{50_sx, 0}};
+    HorizontalSlider cameraPerspectiveSlider{&cameraLayout, Size{~0, 0}};
 };
 
 struct AudioSettings : VerticalLayout {
