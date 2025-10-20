@@ -222,6 +222,70 @@ static bool update_variables() // returns whether video dimensions have changed 
 			emulator->configure("Hacks/PPU/NoVRAMBlocking", false);
 	}
 
+	var.key = "bsnes_twofived_enable";
+	var.value = NULL;
+
+	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+	{
+		if (strcmp(var.value, "ON") == 0)
+			emulator->configure("Hacks/PPU/TwoFiveD/Enable", true);
+		else if (strcmp(var.value, "OFF") == 0)
+			emulator->configure("Hacks/PPU/TwoFiveD/Enable", false);
+	}
+
+	var.key = "bsnes_twofived_override_priority";
+	var.value = NULL;
+
+	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+	{
+		if (strcmp(var.value, "ON") == 0)
+			emulator->configure("Hacks/PPU/TwoFiveD/OverridePriority", true);
+		else if (strcmp(var.value, "OFF") == 0)
+			emulator->configure("Hacks/PPU/TwoFiveD/OverridePriority", false);
+	}
+
+	var.key = "bsnes_twofived_clamp_depth";
+	var.value = NULL;
+
+	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+	{
+		if (strcmp(var.value, "ON") == 0)
+			emulator->configure("Hacks/PPU/TwoFiveD/ClampDepth", true);
+		else if (strcmp(var.value, "OFF") == 0)
+			emulator->configure("Hacks/PPU/TwoFiveD/ClampDepth", false);
+	}
+
+	var.key = "bsnes_twofived_far_depth";
+	var.value = NULL;
+
+	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+	{
+		int val = atoi(var.value);
+		emulator->configure("Hacks/PPU/TwoFiveD/FarDepth", val);
+	}
+
+	static const char* twofivedOptionLayers[] = {"bg1", "bg2", "bg3", "bg4", "obj"};
+	static const char* twofivedConfigLayers[] = {"BG1", "BG2", "BG3", "BG4", "OBJ"};
+	static const char* twofivedOptionFields[] = {"base", "palette", "priority"};
+	static const char* twofivedConfigFields[] = {"Base", "PaletteScale", "PriorityScale"};
+
+	for (unsigned layer = 0; layer < 5; layer++)
+	{
+		for (unsigned field = 0; field < 3; field++)
+		{
+			snprintf(key, sizeof key, "bsnes_twofived_%s_%s", twofivedOptionLayers[layer], twofivedOptionFields[field]);
+			var.key = key;
+			var.value = NULL;
+
+			if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var))
+			{
+				int val = atoi(var.value);
+				snprintf(key, sizeof key, "Hacks/PPU/TwoFiveD/%s/%s", twofivedConfigLayers[layer], twofivedConfigFields[field]);
+				emulator->configure(key, val);
+			}
+		}
+	}
+
 	var.key = "bsnes_dsp_fast";
 	var.value = NULL;
 
