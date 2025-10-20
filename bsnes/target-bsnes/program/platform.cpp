@@ -1,4 +1,6 @@
 #include <nall/encode/bmp.hpp>
+#include <sfc/sfc.hpp>
+#undef platform
 #include <heuristics/heuristics.hpp>
 #include <heuristics/heuristics.cpp>
 #include <heuristics/super-famicom.cpp>
@@ -208,18 +210,34 @@ auto Program::load(uint id, string name, string type, vector<string> options) ->
 }
 
 auto Program::videoFrame(const uint32* data, uint pitch, uint width, uint height, uint scale) -> void {
+  const uint32* source = data;
+  uint sourcePitch = pitch >> 2;
+
+  if(::SuperFamicom::system.loaded() && ::SuperFamicom::ppu.depthBufferEnabled()) {
+    if(auto* depth = ::SuperFamicom::ppu.depthBuffer()) {
+      uint outputPitch = 0;
+      if(auto* reprojected = Emulator::TwoFiveD::reproject(
+           source, sourcePitch, width, height,
+           depth, ::SuperFamicom::ppu.depthBufferPitch(), ::SuperFamicom::ppu.depthBufferFar(),
+           twofive, outputPitch)) {
+        source = reprojected;
+        sourcePitch = outputPitch;
+      }
+    }
+  }
+
   //this relies on the UI only running between Emulator::Scheduler::Event::Frame events
   //this will always be the case; so we can avoid an unnecessary copy or one-frame delay here
   //if the core were to exit between a frame event, the next frame might've been only partially rendered
-  screenshot.data   = data;
-  screenshot.pitch  = pitch;
+  screenshot.data   = source;
+  screenshot.pitch  = sourcePitch * sizeof(uint32);
   screenshot.width  = width;
   screenshot.height = height;
   screenshot.scale  = scale;
 
   uint offset = settings.video.overscan ? 8 : 12;
   uint multiplier = height / 240;
-  data   += offset * multiplier * (pitch >> 2);
+  source += offset * multiplier * sourcePitch;
   height -= offset * multiplier * 2;
 
   uint outputWidth = width, outputHeight = height;
@@ -227,11 +245,12 @@ auto Program::videoFrame(const uint32* data, uint pitch, uint width, uint height
 
   uint filterWidth = width, filterHeight = height;
   if(auto [output, length] = video.acquire(filterWidth, filterHeight); output) {
-    if (length == pitch) {
-      memory::copy<uint32>(output, data, width * height);
+    uint sourcePitchBytes = sourcePitch * sizeof(uint32);
+    if (length == sourcePitchBytes) {
+      memory::copy<uint32>(output, source, width * height);
     } else {
       for(uint y = 0; y < height; y++) {
-        memory::copy<uint32>(output + y * (length >> 2), data + y * (pitch >> 2), width);
+        memory::copy<uint32>(output + y * (length >> 2), source + y * sourcePitch, width);
       }
     }
 

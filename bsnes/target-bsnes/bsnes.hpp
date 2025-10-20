@@ -8,6 +8,7 @@ extern Input input;
 using namespace hiro;
 
 #include <emulator/emulator.hpp>
+#include <emulator/twofived.hpp>
 extern unique_pointer<Emulator::Interface> emulator;
 
 #include <filter/filter.hpp>

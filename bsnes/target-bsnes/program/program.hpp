@@ -1,3 +1,5 @@
+using Emulator::TwoFiveD::ReprojectionBuffers;
+
 struct Program : Lock, Emulator::Platform {
   Application::Namespace tr{"Program"};
 
@@ -175,6 +177,8 @@ public:
 
   uint32_t palette[32768];
   uint32_t paletteDimmed[32768];
+
+  ReprojectionBuffers twofive;
 
   struct Screenshot {
     const uint32* data = nullptr;

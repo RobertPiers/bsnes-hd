@@ -32,6 +32,7 @@ struct PPU : Thread, PPUcounter {
   auto depthBuffer() -> uint16* { return twofive.output.buffer; }
   auto depthBufferPitch() const -> uint { return 1024; }
   auto depthBufferEnabled() const -> bool { return twofive.io.enable; }
+  auto depthBufferFar() const -> uint16 { return twofive.io.farDepth; }
   #include "twofive.hpp"
   auto configureTwoFiveD(const TwoFiveD::Settings& settings) -> void;
 

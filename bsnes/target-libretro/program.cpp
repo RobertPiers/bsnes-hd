@@ -1,5 +1,7 @@
 #include <emulator/emulator.hpp>
-#include <sfc/interface/interface.hpp>
+#include <emulator/twofived.hpp>
+#include <sfc/sfc.hpp>
+#undef platform
 #include <filter/filter.hpp>
 #include <lzma/lzma.hpp>
 #include <nall/directory.hpp>
@@ -11,6 +13,7 @@
 #include <nall/hash/crc16.hpp>
 #include <nall/beat/single/apply.hpp>
 using namespace nall;
+using Emulator::TwoFiveD::ReprojectionBuffers;
 
 #include <heuristics/heuristics.hpp>
 #include <heuristics/heuristics.cpp>
@@ -57,9 +60,11 @@ struct Program : Emulator::Platform
 
 	bool overscan = false;
 	bool aspectcorrection = false;
-	uint ws = 0;
-	uint scale = 1;
-	bool ipsHeadered = false;
+        uint ws = 0;
+        uint scale = 1;
+        bool ipsHeadered = false;
+
+        ReprojectionBuffers twofive;
 
 public:	
 	struct Game {
@@ -386,13 +391,29 @@ auto Program::load(uint id, string name, string type, vector<string> options) ->
 }
 
 auto Program::videoFrame(const uint32* data, uint pitch, uint width, uint height, uint scale) -> void {
+        const uint32* source = data;
+        uint sourcePitch = pitch >> 2;
 
-	uint offset = overscan ? 8 : 12;
-	uint multiplier = height / 215;
-	data   += offset * (pitch >> 2) * multiplier;
-	height -= offset * 2 * multiplier;
+        if(::SuperFamicom::system.loaded() && ::SuperFamicom::ppu.depthBufferEnabled()) {
+                if(auto* depth = ::SuperFamicom::ppu.depthBuffer()) {
+                        uint outputPitch = 0;
+                        if(auto* reprojected = Emulator::TwoFiveD::reproject(
+                                        source, sourcePitch, width, height,
+                                        depth, ::SuperFamicom::ppu.depthBufferPitch(), ::SuperFamicom::ppu.depthBufferFar(),
+                                        twofive, outputPitch)) {
+                                source = reprojected;
+                                sourcePitch = outputPitch;
+                                pitch = outputPitch * sizeof(uint32);
+                        }
+                }
+        }
 
-	video_cb(data, width, height, pitch);
+        uint offset = overscan ? 8 : 12;
+        uint multiplier = height / 215;
+        source += offset * sourcePitch * multiplier;
+        height -= offset * 2 * multiplier;
+
+        video_cb(source, width, height, sourcePitch * sizeof(uint32));
 }
 
 // Double the fun!
