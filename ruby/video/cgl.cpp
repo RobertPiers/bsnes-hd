@@ -66,6 +66,11 @@ struct VideoCGL : VideoDriver, OpenGL {
     return true;
   }
 
+  auto setCamera(const Video::CameraSettings& settings) -> bool override {
+    OpenGL::setCamera(settings);
+    return true;
+  }
+
   auto clear() -> void override {
     @autoreleasepool {
       [view lockFocus];

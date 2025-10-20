@@ -12,6 +12,8 @@ auto PPU::Screen::scanline() -> void {
 
   math.above.colorEnable = false;
   math.below.colorEnable = false;
+  math.above.layer = LayerID::Backdrop;
+  math.below.layer = LayerID::Backdrop;
 
   math.transparent = true;
   math.blendMode   = false;
@@ -25,8 +27,20 @@ auto PPU::Screen::run() -> void {
   auto belowColor = below(hires);
   auto aboveColor = above();
 
-  *lineA++ = *lineB++ = ppu.lightTable[ppu.io.displayBrightness][hires ? belowColor : aboveColor];
-  *lineA++ = *lineB++ = ppu.lightTable[ppu.io.displayBrightness][aboveColor];
+  auto encode = [&](uint16 color, bool subscreen) -> uint32 {
+    uint32 pixel = ppu.lightTable[ppu.io.displayBrightness][color];
+    uint8 primary = subscreen ? math.below.layer : math.above.layer;
+    uint8 secondary = subscreen ? math.above.layer : math.below.layer;
+    uint8 meta = (primary & 0x7) | ((secondary & 0x7) << 3);
+    if(subscreen) meta |= 1 << 6;
+    return pixel | (uint32(meta) << 24);
+  };
+
+  uint32 belowPixel = encode(belowColor, true);
+  uint32 abovePixel = encode(aboveColor, false);
+
+  *lineA++ = *lineB++ = hires ? belowPixel : abovePixel;
+  *lineA++ = *lineB++ = abovePixel;
 }
 
 auto PPU::Screen::below(bool hires) -> uint16 {
@@ -40,24 +54,30 @@ auto PPU::Screen::below(bool hires) -> uint16 {
     } else {
       math.below.color = paletteColor(ppu.bg1.output.below.palette);
     }
+    math.below.layer = LayerID::BG1;
   }
   if(ppu.bg2.output.below.priority > priority) {
     priority = ppu.bg2.output.below.priority;
     math.below.color = paletteColor(ppu.bg2.output.below.palette);
+    math.below.layer = LayerID::BG2;
   }
   if(ppu.bg3.output.below.priority > priority) {
     priority = ppu.bg3.output.below.priority;
     math.below.color = paletteColor(ppu.bg3.output.below.palette);
+    math.below.layer = LayerID::BG3;
   }
   if(ppu.bg4.output.below.priority > priority) {
     priority = ppu.bg4.output.below.priority;
     math.below.color = paletteColor(ppu.bg4.output.below.palette);
+    math.below.layer = LayerID::BG4;
   }
   if(ppu.obj.output.below.priority > priority) {
     priority = ppu.obj.output.below.priority;
     math.below.color = paletteColor(ppu.obj.output.below.palette);
+    math.below.layer = LayerID::OBJ;
   }
   if(math.transparent = (priority == 0)) math.below.color = paletteColor(0);
+  if(math.transparent) math.below.layer = LayerID::Backdrop;
 
   if(!hires) return 0;
   if(!math.below.colorEnable) return math.above.colorEnable ? math.below.color : (uint15)0;
@@ -80,30 +100,36 @@ auto PPU::Screen::above() -> uint16 {
       math.above.color = paletteColor(ppu.bg1.output.above.palette);
     }
     math.below.colorEnable = io.bg1.colorEnable;
+    math.above.layer = LayerID::BG1;
   }
   if(ppu.bg2.output.above.priority > priority) {
     priority = ppu.bg2.output.above.priority;
     math.above.color = paletteColor(ppu.bg2.output.above.palette);
     math.below.colorEnable = io.bg2.colorEnable;
+    math.above.layer = LayerID::BG2;
   }
   if(ppu.bg3.output.above.priority > priority) {
     priority = ppu.bg3.output.above.priority;
     math.above.color = paletteColor(ppu.bg3.output.above.palette);
     math.below.colorEnable = io.bg3.colorEnable;
+    math.above.layer = LayerID::BG3;
   }
   if(ppu.bg4.output.above.priority > priority) {
     priority = ppu.bg4.output.above.priority;
     math.above.color = paletteColor(ppu.bg4.output.above.palette);
     math.below.colorEnable = io.bg4.colorEnable;
+    math.above.layer = LayerID::BG4;
   }
   if(ppu.obj.output.above.priority > priority) {
     priority = ppu.obj.output.above.priority;
     math.above.color = paletteColor(ppu.obj.output.above.palette);
     math.below.colorEnable = io.obj.colorEnable && ppu.obj.output.above.palette >= 192;
+    math.above.layer = LayerID::OBJ;
   }
   if(priority == 0) {
     math.above.color = paletteColor(0);
     math.below.colorEnable = io.back.colorEnable;
+    math.above.layer = LayerID::Backdrop;
   }
 
   if(!ppu.window.output.below.colorEnable) math.below.colorEnable = false;

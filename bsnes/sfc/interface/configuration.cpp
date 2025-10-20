@@ -21,6 +21,15 @@ auto Configuration::process(Markup::Node document, bool load) -> void {
   bind(natural, "Video/Saturation", video.saturation);
   bind(natural, "Video/Gamma", video.gamma);
   bind(natural, "Video/Luminance", video.luminance);
+  bind(boolean, "Video/Camera/Enable", video.camera.enabled);
+  bind(integer, "Video/Camera/Yaw", video.camera.yaw);
+  bind(integer, "Video/Camera/Pitch", video.camera.pitch);
+  bind(integer, "Video/Camera/Roll", video.camera.roll);
+  bind(integer, "Video/Camera/OffsetX", video.camera.offsetX);
+  bind(integer, "Video/Camera/OffsetY", video.camera.offsetY);
+  bind(integer, "Video/Camera/OffsetZ", video.camera.offsetZ);
+  bind(integer, "Video/Camera/Zoom", video.camera.zoom);
+  bind(integer, "Video/Camera/Perspective", video.camera.perspective);
 
   bind(boolean, "Hacks/Hotfixes", hacks.hotfixes);
   bind(text,    "Hacks/Entropy", hacks.entropy);

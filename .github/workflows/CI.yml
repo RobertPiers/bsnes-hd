@@ -8,7 +8,7 @@ jobs:
     env:
       POWERSHELL_TELEMETRY_OPTOUT: 1
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Build
@@ -19,7 +19,7 @@ jobs:
         cp README.md bsnes\out\pack\readme.md
         cp bsnes\out\bsnes.exe bsnes\out\pack\bsnes_hd.exe
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: bsnes_hd_beta_X_windows
         path: bsnes\out\pack
@@ -30,7 +30,7 @@ jobs:
     env:
       POWERSHELL_TELEMETRY_OPTOUT: 1
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Build
@@ -42,7 +42,7 @@ jobs:
         cp LICENSE bsnes/out/pack
         cp -R bsnes/out/*bsnes* bsnes/out/pack
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: bsnes_hd_beta_X_windows_libretro
         path: bsnes\out\pack
@@ -51,7 +51,7 @@ jobs:
   Linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Setup
@@ -70,7 +70,7 @@ jobs:
         cd bsnes/out/pack
         tar -jcvpf ../tar/bsnes_hd_beta_X_linux.tar.bz2 *
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: UNPACK-LINUX
         path: bsnes/out/tar
@@ -79,7 +79,7 @@ jobs:
   Linux-libretro:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Setup
@@ -95,7 +95,7 @@ jobs:
         cp LICENSE bsnes/out/pack
         cp -R bsnes/out/*bsnes* bsnes/out/pack
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: bsnes_hd_beta_X_linux_libretro
         path: bsnes/out/pack
@@ -104,7 +104,7 @@ jobs:
   Linux-ARM-libretro:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: add foreign arch
@@ -138,7 +138,7 @@ jobs:
         cp LICENSE bsnes/out/pack
         cp -R bsnes/out/*bsnes* bsnes/out/pack
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: bsnes_hd_beta_X_linux_arm_libretro
         path: bsnes/out/pack
@@ -147,7 +147,7 @@ jobs:
   macOS:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Build
@@ -166,7 +166,7 @@ jobs:
         cd bsnes/out/pack
         tar -jcvpf ../tar/bsnes_hd_beta_X_mac.tar.bz2 *
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: UNPACK-MAC
         path: bsnes/out/tar
@@ -175,7 +175,7 @@ jobs:
   macOS-libretro:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Build
@@ -189,7 +189,7 @@ jobs:
         cp LICENSE bsnes/out/pack
         cp -R bsnes/out/*bsnes* bsnes/out/pack
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: bsnes_hd_beta_X_mac_libretro
         path: bsnes/out/pack
@@ -198,7 +198,7 @@ jobs:
   Android-libretro:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - uses: nttld/setup-ndk@v1
@@ -212,7 +212,7 @@ jobs:
         cp README.md bsnes/target-libretro/libs
         cp LICENSE bsnes/target-libretro/libs
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: bsnes_hd_beta_X_android_libretro
         path: bsnes/target-libretro/libs

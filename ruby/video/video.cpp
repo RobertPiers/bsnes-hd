@@ -92,6 +92,11 @@ auto Video::setShader(string shader) -> bool {
   return true;
 }
 
+auto Video::setCamera(const CameraSettings& settings) -> void {
+  cameraSettings = settings;
+  instance->setCamera(cameraSettings);
+}
+
 //
 
 auto Video::clear() -> void {
@@ -176,7 +181,12 @@ auto Video::create(string driver) -> bool {
 
   if(!self.instance) self.instance = new VideoDriver(*this);
 
-  return self.instance->create();
+  if(auto created = self.instance->create()) {
+    self.instance->setCamera(cameraSettings);
+    return true;
+  }
+
+  return false;
 }
 
 auto Video::hasDrivers() -> vector<string> {

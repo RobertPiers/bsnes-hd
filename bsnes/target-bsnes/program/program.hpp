@@ -97,6 +97,7 @@ struct Program : Lock, Emulator::Platform {
   auto updateVideoMonitor() -> void;
   auto updateVideoFormat() -> void;
   auto updateVideoShader() -> void;
+  auto updateVideoCamera() -> void;
   auto updateVideoEffects() -> void;
   auto toggleVideoFullScreen() -> void;
   auto toggleVideoPseudoFullScreen() -> void;
