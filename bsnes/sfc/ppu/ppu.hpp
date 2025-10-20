@@ -32,6 +32,8 @@ struct PPU : Thread, PPUcounter {
   auto depthBuffer() -> uint16* { return twofive.output.buffer; }
   auto depthBufferPitch() const -> uint { return 1024; }
   auto depthBufferEnabled() const -> bool { return twofive.io.enable; }
+  #include "twofive.hpp"
+  auto configureTwoFiveD(const TwoFiveD::Settings& settings) -> void;
 
 private:
   //ppu.cpp
@@ -162,7 +164,6 @@ private:
   #include "object.hpp"
   #include "window.hpp"
   #include "screen.hpp"
-  #include "twofive.hpp"
 
   Mosaic mosaic;
   Background bg1;

@@ -63,9 +63,12 @@ auto Configuration::process(Markup::Node document, bool load) -> void {
   for(uint index = 0; index < 5; index++) {
     auto& layer = index < 4 ? hacks.ppu.twofive.bg[index] : hacks.ppu.twofive.obj;
     string prefix = {"Hacks/PPU/TwoFiveD/", twofiveLayers[index]};
-    bind(natural, {prefix, "/Base"}, layer.base);
-    bind(natural, {prefix, "/PaletteScale"}, layer.paletteScale);
-    bind(natural, {prefix, "/PriorityScale"}, layer.priorityScale);
+    string basePath = {prefix, "/Base"};
+    string palettePath = {prefix, "/PaletteScale"};
+    string priorityPath = {prefix, "/PriorityScale"};
+    bind(natural, basePath, layer.base);
+    bind(natural, palettePath, layer.paletteScale);
+    bind(natural, priorityPath, layer.priorityScale);
   }
 
   bind(boolean, "Hacks/DSP/Fast", hacks.dsp.fast);
@@ -95,7 +98,7 @@ auto Configuration::write(string configuration) -> bool {
 
   if(auto document = BML::unserialize(configuration)) {
     process(document, true);
-    ppu.twofive.configure(TwoFiveD::makeSettings(hacks.ppu.twofive));
+    ppu.configureTwoFiveD(PPU::TwoFiveD::makeSettings(hacks.ppu.twofive));
     return true;
   }
 
@@ -110,7 +113,7 @@ auto Configuration::write(string name, string value) -> bool {
     node.setValue(value);
     process(document, true);
     if(name.beginsWith("Hacks/PPU/TwoFiveD/")) {
-      ppu.twofive.configure(TwoFiveD::makeSettings(hacks.ppu.twofive));
+      ppu.configureTwoFiveD(PPU::TwoFiveD::makeSettings(hacks.ppu.twofive));
     }
     return true;
   }

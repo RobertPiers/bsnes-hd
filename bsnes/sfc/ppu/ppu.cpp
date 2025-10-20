@@ -73,6 +73,10 @@ auto PPU::load() -> bool {
   return true && ppufast.load();
 }
 
+auto PPU::configureTwoFiveD(const TwoFiveD::Settings& settings) -> void {
+  twofive.configure(settings);
+}
+
 auto PPU::power(bool reset) -> void {
   twofive.power(TwoFiveD::makeSettings(configuration.hacks.ppu.twofive));
   if(system.fastPPU()) {

@@ -153,9 +153,12 @@ auto Settings::process(bool load) -> void {
   for(uint index = 0; index < 5; index++) {
     auto& layer = index < 4 ? emulator.hack.ppu.twofive.bg[index] : emulator.hack.ppu.twofive.obj;
     string prefix = {"Emulator/Hack/PPU/TwoFiveD/", twofiveLayers[index]};
-    bind(natural, {prefix, "/Base"}, layer.base);
-    bind(natural, {prefix, "/PaletteScale"}, layer.paletteScale);
-    bind(natural, {prefix, "/PriorityScale"}, layer.priorityScale);
+    string basePath = {prefix, "/Base"};
+    string palettePath = {prefix, "/PaletteScale"};
+    string priorityPath = {prefix, "/PriorityScale"};
+    bind(natural, basePath, layer.base);
+    bind(natural, palettePath, layer.paletteScale);
+    bind(natural, priorityPath, layer.priorityScale);
   }
   bind(boolean, "Emulator/Hack/DSP/Fast",                emulator.hack.dsp.fast);
   bind(boolean, "Emulator/Hack/DSP/Cubic",               emulator.hack.dsp.cubic);
