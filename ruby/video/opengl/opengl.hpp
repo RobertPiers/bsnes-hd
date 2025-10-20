@@ -19,6 +19,7 @@
 #include "bind.hpp"
 #include "shaders.hpp"
 #include "utility.hpp"
+#include "../video.hpp"
 
 struct OpenGL;
 
@@ -72,6 +73,8 @@ struct OpenGL : OpenGLProgram {
   auto output() -> void;
   auto initialize(const string& shader) -> bool;
   auto terminate() -> void;
+  auto setCamera(const Video::CameraSettings& camera) -> void;
+  auto updateCamera(uint targetWidth, uint targetHeight) -> void;
 
   vector<OpenGLProgram> programs;
   vector<OpenGLTexture> history;
@@ -80,6 +83,21 @@ struct OpenGL : OpenGLProgram {
   uint outputY = 0;
   uint outputWidth = 0;
   uint outputHeight = 0;
+  struct CameraState {
+    bool enabled = false;
+    float yaw = 0.0f;
+    float pitch = 0.0f;
+    float roll = 0.0f;
+    float offsetX = 0.0f;
+    float offsetY = 0.0f;
+    float offsetZ = 0.0f;
+    float zoom = 1.0f;
+    float perspective = 0.0f;
+    bool dirty = true;
+    float matrix[16];
+    uint lastWidth = 0;
+    uint lastHeight = 0;
+  } camera;
   struct Setting {
     string name;
     string value;

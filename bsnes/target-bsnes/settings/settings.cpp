@@ -67,6 +67,15 @@ auto Settings::process(bool load) -> void {
   bind(boolean, "Video/Overscan",         video.overscan);
   bind(boolean, "Video/Blur",             video.blur);
   bind(text,    "Video/Filter",           video.filter);
+  bind(boolean, "Video/Camera/Enable",    video.camera.enabled);
+  bind(integer, "Video/Camera/Yaw",       video.camera.yaw);
+  bind(integer, "Video/Camera/Pitch",     video.camera.pitch);
+  bind(integer, "Video/Camera/Roll",      video.camera.roll);
+  bind(integer, "Video/Camera/OffsetX",   video.camera.offsetX);
+  bind(integer, "Video/Camera/OffsetY",   video.camera.offsetY);
+  bind(integer, "Video/Camera/OffsetZ",   video.camera.offsetZ);
+  bind(integer, "Video/Camera/Zoom",      video.camera.zoom);
+  bind(integer, "Video/Camera/Perspective", video.camera.perspective);
 
   bind(text,    "Audio/Driver",    audio.driver);
   bind(boolean, "Audio/Exclusive", audio.exclusive);

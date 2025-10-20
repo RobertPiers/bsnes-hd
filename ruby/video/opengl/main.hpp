@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <cmath>
+
 auto OpenGL::setShader(const string& pathname) -> void {
   for(auto& program : programs) program.release();
   programs.reset();
@@ -160,12 +163,16 @@ auto OpenGL::output() -> void {
   if(relativeWidth) targetWidth = sources[0].width * relativeWidth;
   if(relativeHeight) targetHeight = sources[0].height * relativeHeight;
 
+  updateCamera(targetWidth, targetHeight);
+
   glUseProgram(program);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
   glrUniform1i("source[0]", 0);
   glrUniform4f("targetSize", targetWidth, targetHeight, 1.0 / targetWidth, 1.0 / targetHeight);
   glrUniform4f("outputSize", outputWidth, outputHeight, 1.0 / outputWidth, 1.0 / outputHeight);
+  glrUniform1i("cameraEnabled", camera.enabled);
+  glrUniformMatrix4fv("cameraModelViewProjection", camera.matrix);
 
   glrParameters(sources[0].filter, sources[0].wrap);
   render(sources[0].width, sources[0].height, outputX, outputY, outputWidth, outputHeight);
@@ -210,4 +217,165 @@ auto OpenGL::terminate() -> void {
   OpenGLSurface::release();
   if(buffer) { delete[] buffer; buffer = nullptr; }
   initialized = false;
+}
+auto OpenGL::setCamera(const Video::CameraSettings& settings) -> void {
+  static constexpr float degrees = 3.14159265358979323846f / 180.0f;
+  camera.enabled = settings.enabled;
+  camera.yaw = settings.yaw * degrees;
+  camera.pitch = settings.pitch * degrees;
+  camera.roll = settings.roll * degrees;
+  camera.offsetX = settings.offsetX / 100.0f;
+  camera.offsetY = settings.offsetY / 100.0f;
+  camera.offsetZ = settings.offsetZ / 100.0f;
+  camera.zoom = std::max(0.01f, settings.zoom / 100.0f);
+  camera.perspective = settings.perspective / 100.0f;
+  camera.dirty = true;
+}
+
+auto OpenGL::updateCamera(uint targetWidth, uint targetHeight) -> void {
+  static constexpr float identity[16] = {
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+  };
+
+  auto setIdentity = [&](float (&matrix)[16]) {
+    std::copy(identity, identity + 16, matrix);
+  };
+
+  if(!camera.enabled) {
+    setIdentity(camera.matrix);
+    camera.lastWidth = targetWidth;
+    camera.lastHeight = targetHeight;
+    camera.dirty = false;
+    return;
+  }
+
+  if(!camera.dirty && camera.lastWidth == targetWidth && camera.lastHeight == targetHeight) return;
+
+  auto multiply = [&](float (&matrix)[16], const float (&transform)[16]) {
+    float result[16];
+    MatrixMultiply(result, matrix, 4, 4, transform, 4, 4);
+    std::copy(result, result + 16, matrix);
+  };
+
+  float model[16];
+  setIdentity(model);
+
+  //scale for zoom
+  float scale[16] = {
+    camera.zoom, 0, 0, 0,
+    0, camera.zoom, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+  };
+  multiply(model, scale);
+
+  //rotate around X (pitch)
+  if(camera.pitch != 0.0f) {
+    float c = std::cos(camera.pitch), s = std::sin(camera.pitch);
+    float rotate[16] = {
+      1, 0, 0, 0,
+      0,  c,  s, 0,
+      0, -s,  c, 0,
+      0, 0, 0, 1,
+    };
+    multiply(model, rotate);
+  }
+
+  //rotate around Y (yaw)
+  if(camera.yaw != 0.0f) {
+    float c = std::cos(camera.yaw), s = std::sin(camera.yaw);
+    float rotate[16] = {
+       c, 0, -s, 0,
+       0, 1,  0, 0,
+       s, 0,  c, 0,
+       0, 0,  0, 1,
+    };
+    multiply(model, rotate);
+  }
+
+  //rotate around Z (roll)
+  if(camera.roll != 0.0f) {
+    float c = std::cos(camera.roll), s = std::sin(camera.roll);
+    float rotate[16] = {
+       c,  s, 0, 0,
+      -s,  c, 0, 0,
+       0,  0, 1, 0,
+       0,  0, 0, 1,
+    };
+    multiply(model, rotate);
+  }
+
+  //translation offsets (percent based)
+  float outputWidthF = outputWidth ? (float)outputWidth : (float)(targetWidth ? targetWidth : 1);
+  float outputHeightF = outputHeight ? (float)outputHeight : (float)(targetHeight ? targetHeight : 1);
+  float offsetScaleX = targetWidth ? (float)targetWidth / outputWidthF : 1.0f;
+  float offsetScaleY = targetHeight ? (float)targetHeight / outputHeightF : 1.0f;
+  float translate[16] = {
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    camera.offsetX * offsetScaleX, camera.offsetY * offsetScaleY, camera.offsetZ, 1,
+  };
+  multiply(model, translate);
+
+  //perspective adjustment
+  float perspectiveStrength = 0.0f;
+  if(camera.perspective > 0.0f) {
+    //map [0,+inf) to [0,1) so that perspective never flips the quad
+    perspectiveStrength = std::tanh(camera.perspective);
+
+    float planeWidth = targetWidth ? (float)targetWidth : outputWidthF;
+    float planeHeight = targetHeight ? (float)targetHeight : outputHeightF;
+    if(outputWidthF != 0.0f) planeWidth /= outputWidthF;
+    if(outputHeightF != 0.0f) planeHeight /= outputHeightF;
+
+    const float corners[4][4] = {
+      {-planeWidth,  planeHeight, 0.0f, 1.0f},
+      { planeWidth,  planeHeight, 0.0f, 1.0f},
+      {-planeWidth, -planeHeight, 0.0f, 1.0f},
+      { planeWidth, -planeHeight, 0.0f, 1.0f},
+    };
+
+    float maxPositiveZ = 0.0f;
+    for(const auto& corner : corners) {
+      float transformed[4];
+      MatrixMultiply(transformed, corner, 1, 4, model, 4, 4);
+      maxPositiveZ = std::max(maxPositiveZ, transformed[2]);
+    }
+
+    if(maxPositiveZ > 0.0f) {
+      constexpr float epsilon = 0.05f;
+      float limit = (1.0f - epsilon) / maxPositiveZ;
+      if(limit < 0.0f) limit = 0.0f;
+      perspectiveStrength = std::min(perspectiveStrength, limit);
+    }
+  }
+
+  if(perspectiveStrength > 0.0f) {
+    float perspective[16] = {
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, -perspectiveStrength, 1,
+    };
+    multiply(model, perspective);
+  }
+
+  float alignX = std::fmod(((outputWidthF + (float)targetWidth) * 0.5f), 1.0f) * 2.0f;
+  float alignY = std::fmod(((outputHeightF + (float)targetHeight) * 0.5f), 1.0f) * 2.0f;
+  float alignTranslate[16] = {
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    -alignX / outputWidthF, -alignY / outputHeightF, 0, 1,
+  };
+  multiply(model, alignTranslate);
+
+  std::copy(model, model + 16, camera.matrix);
+  camera.lastWidth = targetWidth;
+  camera.lastHeight = targetHeight;
+  camera.dirty = false;
 }
