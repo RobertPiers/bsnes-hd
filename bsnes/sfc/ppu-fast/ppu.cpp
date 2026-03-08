@@ -1,4 +1,5 @@
 #include <sfc/sfc.hpp>
+#include <sfc/hd3d/hd3d.hpp>
 
 namespace SuperFamicom {
 
@@ -24,6 +25,7 @@ auto PPU::hires() const -> bool { return latch.hires; }
 auto PPU::hd() const -> bool { return latch.hd; }
 auto PPU::ss() const -> bool { return latch.ss; }
 #undef ppu
+auto PPU::hd3d() const -> bool { return configuration.hacks.ppu.hd3d.enable; }
 auto PPU::hdScale() const -> uint { return configuration.hacks.ppu.mode7.scale; }
 auto PPU::hdPerspective() const -> uint { return configuration.hacks.ppu.mode7.perspective; }
 auto PPU::hdSupersample() const -> uint { return configuration.hacks.ppu.mode7.supersample; }

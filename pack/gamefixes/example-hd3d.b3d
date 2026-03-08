@@ -1,0 +1,7 @@
+# Experimental bsnes-hd 3D profile (draft format)
+enable: 1
+force_bg1_plane: 1
+capture_sprites: 0
+plane_depth: 0
+camera_height: 80
+camera_distance: 180

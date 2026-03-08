@@ -65,6 +65,26 @@ auto PPU::Line::renderBackground(PPU::IO::Background& self, uint8 source) -> voi
     }
   }
 
+  if(ppu.hd3d()) {
+    HD3D::BackgroundLineSample sample;
+    sample.source = source;
+    sample.y = this->y;
+    sample.tileMode = self.tileMode;
+    sample.screenSize = self.screenSize;
+    sample.tileSize = self.tileSize;
+    sample.hires = hires;
+    sample.directColor = directColorMode;
+    sample.aboveEnable = self.aboveEnable;
+    sample.belowEnable = self.belowEnable;
+    sample.tiledataAddress = self.tiledataAddress;
+    sample.screenAddress = self.screenAddress;
+    sample.hscroll = hscroll;
+    sample.vscroll = vscroll;
+    sample.priority0 = self.priority[0];
+    sample.priority1 = self.priority[1];
+    HD3D::captureBackgroundLine(sample);
+  }
+
   uint mosaicCounter = 1;
   uint mosaicPalette = 0;
   uint8 mosaicPriority = 0;

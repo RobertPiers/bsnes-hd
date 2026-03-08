@@ -46,6 +46,9 @@ struct Configuration {
       bool noSpriteLimit = true;
       bool noVRAMBlocking = false;
       uint renderCycle = 512;
+      struct HD3D {
+        bool enable = false;
+      } hd3d;
       struct Mode7 {
         uint scale = 2;
         uint perspective = 1;
