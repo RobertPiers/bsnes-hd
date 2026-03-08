@@ -32,7 +32,13 @@ endif
 
 ifneq ($(filter $(platform),linux bsd),)
   ifeq ($(hiro),)
-    hiro := gtk2
+    ifeq ($(shell pkg-config --exists gtk+-3.0 && echo yes),yes)
+      hiro := gtk3
+    else ifeq ($(shell pkg-config --exists gtk+-2.0 && echo yes),yes)
+      hiro := gtk2
+    else
+      hiro := gtk2
+    endif
   endif
 
   ifeq ($(hiro),gtk2)
