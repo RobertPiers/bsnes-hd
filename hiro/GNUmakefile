@@ -32,13 +32,9 @@ endif
 
 ifneq ($(filter $(platform),linux bsd),)
   ifeq ($(hiro),)
-    ifeq ($(shell pkg-config --exists gtk+-3.0 && echo yes),yes)
-      hiro := gtk3
-    else ifeq ($(shell pkg-config --exists gtk+-2.0 && echo yes),yes)
-      hiro := gtk2
-    else
-      hiro := gtk2
-    endif
+    #Prefer GTK3 by default on Linux/BSD to avoid runtime dependency on gtk2
+    #(`libgtk-x11-2.0.so.0`) when users build with default settings.
+    hiro := gtk3
   endif
 
   ifeq ($(hiro),gtk2)
