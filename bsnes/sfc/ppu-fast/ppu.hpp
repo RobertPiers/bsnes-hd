@@ -12,6 +12,7 @@ struct PPU : PPUcounter {
   alwaysinline auto vdisp() const -> uint;
   alwaysinline auto hires() const -> bool;
   alwaysinline auto hd() const -> bool;
+  alwaysinline auto hd3d() const -> bool;
   alwaysinline auto ss() const -> bool;
   alwaysinline auto hdScale() const -> uint;
   alwaysinline auto hdPerspective() const -> uint;

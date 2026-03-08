@@ -32,7 +32,9 @@ endif
 
 ifneq ($(filter $(platform),linux bsd),)
   ifeq ($(hiro),)
-    hiro := gtk2
+    #Prefer GTK3 by default on Linux/BSD to avoid runtime dependency on gtk2
+    #(`libgtk-x11-2.0.so.0`) when users build with default settings.
+    hiro := gtk3
   endif
 
   ifeq ($(hiro),gtk2)

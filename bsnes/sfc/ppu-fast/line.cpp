@@ -72,6 +72,9 @@ auto PPU::Line::flush() -> void {
   }
 
   if(Line::count) {
+    if(ppu.hd3d()) {
+      HD3D::beginFrame(system.frameCounter, 256, ppu.vdisp());
+    }
     if(ppu.hdScale() > 1) cacheMode7HD();
     #pragma omp parallel for if(Line::count >= 8)
     for(uint y = 0; y < Line::count; y++) {
@@ -88,6 +91,9 @@ auto PPU::Line::flush() -> void {
         //standard 240p (progressive) and 480i (interlaced) rendering
         ppu.lines[Line::start + y].render(ppu.field());
       }
+    }
+    if(ppu.hd3d()) {
+      HD3D::endFrame();
     }
     Line::start = 0;
     Line::count = 0;
@@ -183,6 +189,10 @@ auto PPU::Line::render(bool fieldID) -> void {
 
   if(io.displayDisable) {
     memory::fill<uint32>(output, width);
+    return;
+  }
+
+  if(ppu.hd3d() && !hd && HD3D::renderScanline(output, width, this->y)) {
     return;
   }
 

@@ -210,6 +210,9 @@ auto Program::hackCompatibility() -> void {
             case 'l': //Disable sprite limit
               emulator->configure("Hacks/PPU/NoSpriteLimit", n == 1);
               break;
+            case 'd': //experimental HD3D projection mode 0:off 1:on
+              emulator->configure("Hacks/PPU/HD3D/Enable", n == 1);
+              break;
           }
           c = -1;
           n = 0;

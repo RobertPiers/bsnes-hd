@@ -2,7 +2,7 @@ processors += wdc65816 spc700 arm7tdmi
 
 objects += sfc-interface sfc-system sfc-controller
 objects += sfc-cartridge sfc-memory
-objects += sfc-cpu sfc-smp sfc-dsp sfc-ppu sfc-ppu-fast
+objects += sfc-cpu sfc-smp sfc-dsp sfc-ppu sfc-ppu-fast sfc-hd3d
 objects += sfc-expansion sfc-coprocessor sfc-slot
 
 obj/sfc-interface.o:   sfc/interface/interface.cpp
@@ -20,3 +20,5 @@ obj/sfc-ppu-fast.o:    sfc/ppu-fast/ppu.cpp
 obj/sfc-expansion.o:   sfc/expansion/expansion.cpp
 obj/sfc-coprocessor.o: sfc/coprocessor/coprocessor.cpp
 obj/sfc-slot.o:        sfc/slot/slot.cpp
+
+obj/sfc-hd3d.o:      sfc/hd3d/hd3d.cpp

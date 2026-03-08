@@ -32,6 +32,7 @@ auto Configuration::process(Markup::Node document, bool load) -> void {
   bind(natural, "Hacks/PPU/RenderCycle", hacks.ppu.renderCycle);
   bind(boolean, "Hacks/PPU/NoSpriteLimit", hacks.ppu.noSpriteLimit);
   bind(boolean, "Hacks/PPU/NoVRAMBlocking", hacks.ppu.noVRAMBlocking);
+  bind(boolean, "Hacks/PPU/HD3D/Enable", hacks.ppu.hd3d.enable);
   bind(natural, "Hacks/PPU/Mode7/Scale", hacks.ppu.mode7.scale);
   bind(natural, "Hacks/PPU/Mode7/Perspective", hacks.ppu.mode7.perspective);
   bind(natural, "Hacks/PPU/Mode7/Widescreen", hacks.ppu.mode7.widescreen);
