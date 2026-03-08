@@ -1,4 +1,4 @@
-auto TwoFiveD::power() -> void {
+auto PPU::TwoFiveD::power() -> void {
   io.enable = false;
   io.overridePriority = false;
   io.clampDepth = true;
@@ -17,7 +17,7 @@ auto TwoFiveD::power() -> void {
   memory::fill<uint16>(output.buffer, io.farDepth);
 }
 
-auto TwoFiveD::serialize(serializer& s) -> void {
+auto PPU::TwoFiveD::serialize(serializer& s) -> void {
   s.integer(io.enable);
   s.integer(io.overridePriority);
   s.integer(io.clampDepth);
@@ -32,7 +32,7 @@ auto TwoFiveD::serialize(serializer& s) -> void {
   s.integer(io.obj.priorityScale);
 }
 
-auto TwoFiveD::readIO(uint16 address) -> uint8 {
+auto PPU::TwoFiveD::readIO(uint16 address) -> uint8 {
   switch(address) {
   case 0x21c0: return (uint8)io.enable << 0 | (uint8)io.overridePriority << 1 | (uint8)io.clampDepth << 2;
   case 0x21c1: return io.farDepth >> 0;
@@ -54,7 +54,7 @@ auto TwoFiveD::readIO(uint16 address) -> uint8 {
   return 0x00;
 }
 
-auto TwoFiveD::writeIO(uint16 address, uint8 data) -> void {
+auto PPU::TwoFiveD::writeIO(uint16 address, uint8 data) -> void {
   switch(address) {
   case 0x21c0:
     io.enable = data & 1;
@@ -83,7 +83,7 @@ auto TwoFiveD::writeIO(uint16 address, uint8 data) -> void {
   }
 }
 
-auto TwoFiveD::depthForBackground(uint layer, uint priority, uint color) const -> uint16 {
+auto PPU::TwoFiveD::depthForBackground(uint layer, uint priority, uint color) const -> uint16 {
   if(!io.enable) return io.farDepth;
   layer &= 3;
   const auto& config = io.bg[layer];
@@ -93,7 +93,7 @@ auto TwoFiveD::depthForBackground(uint layer, uint priority, uint color) const -
   return clamp(depth);
 }
 
-auto TwoFiveD::depthForObject(uint priority, uint color) const -> uint16 {
+auto PPU::TwoFiveD::depthForObject(uint priority, uint color) const -> uint16 {
   if(!io.enable) return io.farDepth;
   uint32 depth = io.obj.base;
   depth += (uint32)io.obj.priorityScale * priority;
@@ -101,7 +101,7 @@ auto TwoFiveD::depthForObject(uint priority, uint color) const -> uint16 {
   return clamp(depth);
 }
 
-auto TwoFiveD::beginScanline(uint y, bool interlace, bool field) -> void {
+auto PPU::TwoFiveD::beginScanline(uint y, bool interlace, bool field) -> void {
   if(!io.enable) {
     output.lineA = nullptr;
     output.lineB = nullptr;
@@ -114,7 +114,7 @@ auto TwoFiveD::beginScanline(uint y, bool interlace, bool field) -> void {
   if(interlace && field) output.lineA += 512, output.lineB += 512;
 }
 
-auto TwoFiveD::write(uint16 depth, bool hires) -> void {
+auto PPU::TwoFiveD::write(uint16 depth, bool hires) -> void {
   if(!io.enable || !output.lineA || !output.lineB) return;
   (void)hires;
 
@@ -124,7 +124,7 @@ auto TwoFiveD::write(uint16 depth, bool hires) -> void {
   *output.lineB++ = depth;
 }
 
-auto TwoFiveD::frontDepth(uint16 aboveDepth, bool aboveEnable, uint16 belowDepth, bool belowEnable) const -> uint16 {
+auto PPU::TwoFiveD::frontDepth(uint16 aboveDepth, bool aboveEnable, uint16 belowDepth, bool belowEnable) const -> uint16 {
   if(!io.enable) return io.farDepth;
   if(aboveEnable) return aboveDepth;
   if(belowEnable) return belowDepth;
